@@ -2,8 +2,8 @@ package parser
 
 import (
 	"fmt"
-	"github.com/nativeblocks/nbx/lexer"
-	"github.com/nativeblocks/nbx/model"
+	"github.com/nativeblocks/nbx/internal/lexer"
+	"github.com/nativeblocks/nbx/internal/model"
 	"strconv"
 )
 

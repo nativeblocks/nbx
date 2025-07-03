@@ -1,6 +1,6 @@
 package compiler
 
-import "github.com/nativeblocks/nbx/model"
+import "github.com/nativeblocks/nbx/internal/model"
 
 func ToDsl(frame model.FrameJson) model.FrameDSLModel {
 	variables := make([]model.VariableDSLModel, len(frame.Variables))

@@ -1,5 +1,0 @@
-package nbx
-
-func main() {
-
-}

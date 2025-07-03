@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/google/uuid"
-	"github.com/nativeblocks/nbx/model"
+	"github.com/nativeblocks/nbx/internal/model"
 	"github.com/xeipuuv/gojsonschema"
 	"regexp"
 	"strings"

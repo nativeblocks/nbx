@@ -1,7 +1,7 @@
 package parser
 
 import (
-	"github.com/nativeblocks/nbx/lexer"
+	"github.com/nativeblocks/nbx/internal/lexer"
 	"testing"
 )
 
