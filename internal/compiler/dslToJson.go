@@ -7,71 +7,45 @@ import (
 	"github.com/nativeblocks/nbx/internal/model"
 	"github.com/xeipuuv/gojsonschema"
 	"regexp"
+	"sort"
 	"strings"
 )
 
 func ToJson(frameDSL model.FrameDSLModel, schema string, frameID string) (model.FrameJson, error) {
-	initialFrameId := frameID
-	if initialFrameId == "" {
-		initialFrameId = _generateId()
+	var validationTarget interface{}
+	if len(frameDSL.Blocks) > 0 && frameDSL.Blocks[0].KeyType == "ROOT" && frameDSL.Blocks[0].Slot == "" {
+		validationDSL := frameDSL
+		validationDSL.Blocks = make([]model.BlockDSLModel, len(frameDSL.Blocks))
+		copy(validationDSL.Blocks, frameDSL.Blocks)
+		validationDSL.Blocks[0].Slot = "null"
+		validationTarget = validationDSL
+	} else {
+		validationTarget = frameDSL
+	}
+
+	schemaLoader := gojsonschema.NewStringLoader(schema)
+	documentLoader := gojsonschema.NewGoLoader(validationTarget)
+
+	result, err := gojsonschema.Validate(schemaLoader, documentLoader)
+	if err != nil {
+		return model.FrameJson{}, fmt.Errorf("schema validation error: %w", err)
+	}
+
+	if !result.Valid() {
+		return model.FrameJson{}, _formatValidationErrors(result.Errors())
 	}
 
 	if len(frameDSL.Blocks) > 0 && frameDSL.Blocks[0].KeyType != "ROOT" {
 		return model.FrameJson{}, errors.New("first block's keyType must be 'ROOT'")
 	}
 
-	result, err := _validateDSL(frameDSL, schema)
-	if err != nil {
-		return model.FrameJson{}, err
+	var frameId = frameID
+	if frameID == "" {
+		frameId = _generateId()
 	}
 
-	variables := _createVariables(frameDSL.Variables, initialFrameId)
-	var actions []model.ActionJson
-	blocks, blockErr := _processBlocks(initialFrameId, frameDSL.Blocks, "", []model.BlockSlotJson{}, variables, func(blockActions []model.ActionJson) {
-		actions = append(actions, blockActions...)
-	})
-
-	var frameJson model.FrameJson
-	if result != nil && !result.Valid() {
-		frameJson = _createFrame(initialFrameId, frameDSL, variables, blocks, actions)
-		validationErrors := _formatValidationErrors(result, frameJson)
-		return model.FrameJson{}, fmt.Errorf("validation errors: %s", strings.Join(validationErrors, "; "))
-	}
-
-	if blockErr != nil {
-		return model.FrameJson{}, blockErr
-	}
-
-	if duplicateKeys := _findDuplicateKeys(blocks); len(duplicateKeys) > 0 {
-		return model.FrameJson{}, errors.New("duplicate block keys found: " + strings.Join(duplicateKeys, ","))
-	}
-
-	if frameJson.Actions == nil {
-		frameJson.Actions = []model.ActionJson{}
-	}
-	if frameJson.Blocks == nil {
-		frameJson.Blocks = []model.BlockJson{}
-	}
-
-	return frameJson, nil
-}
-
-func _validateDSL(frameDSL model.FrameDSLModel, schema string) (*gojsonschema.Result, error) {
-	schemaLoader := gojsonschema.NewStringLoader(schema)
-	if len(frameDSL.Blocks) > 0 && frameDSL.Blocks[0].KeyType == "ROOT" && frameDSL.Blocks[0].Slot == "" {
-		// because the root has no parent, we need to pass a null slot to it
-		validationDSL := frameDSL
-		validationDSL.Blocks = make([]model.BlockDSLModel, len(frameDSL.Blocks))
-		copy(validationDSL.Blocks, frameDSL.Blocks)
-		validationDSL.Blocks[0].Slot = "null"
-		return gojsonschema.Validate(schemaLoader, gojsonschema.NewGoLoader(validationDSL))
-	}
-	return gojsonschema.Validate(schemaLoader, gojsonschema.NewGoLoader(frameDSL))
-}
-
-func _createVariables(variableDSLs []model.VariableDSLModel, frameId string) []model.VariableJson {
-	variables := make([]model.VariableJson, 0, len(variableDSLs))
-	for _, variable := range variableDSLs {
+	var variables []model.VariableJson
+	for _, variable := range frameDSL.Variables {
 		variables = append(variables, model.VariableJson{
 			Id:      _generateId(),
 			FrameId: frameId,
@@ -80,20 +54,106 @@ func _createVariables(variableDSLs []model.VariableDSLModel, frameId string) []m
 			Type:    variable.Type,
 		})
 	}
-	return variables
-}
 
-func _createFrame(frameId string, dsl model.FrameDSLModel, variables []model.VariableJson, blocks []model.BlockJson, actions []model.ActionJson) model.FrameJson {
-	return model.FrameJson{
+	var actions []model.ActionJson
+	blocks, err := _processBlocks(frameId, frameDSL.Blocks, "", []model.BlockSlotJson{}, variables, func(blockActions []model.ActionJson) {
+		actions = append(actions, blockActions...)
+	})
+
+	if err != nil {
+		return model.FrameJson{}, err
+	}
+
+	hasDuplicateBlockKey := _findDuplicateKeys(blocks)
+	if len(hasDuplicateBlockKey) > 0 {
+		return model.FrameJson{}, fmt.Errorf("duplicate block keys found: %s", strings.Join(hasDuplicateBlockKey, ", "))
+	}
+
+	frame := model.FrameJson{
 		Id:             frameId,
-		Name:           dsl.Name,
-		Route:          dsl.Route,
-		RouteArguments: _convertRouteArguments(dsl.Route),
-		Type:           dsl.Type,
+		Name:           frameDSL.Name,
+		Route:          frameDSL.Route,
+		RouteArguments: _convertRouteArguments(frameDSL.Route),
+		Type:           frameDSL.Type,
 		Variables:      variables,
 		Blocks:         blocks,
 		Actions:        actions,
 	}
+
+	if frame.Actions == nil {
+		frame.Actions = []model.ActionJson{}
+	}
+	if frame.Blocks == nil {
+		frame.Blocks = []model.BlockJson{}
+	}
+
+	return frame, nil
+}
+
+func _formatValidationErrors(errors []gojsonschema.ResultError) error {
+	var formattedErrors []string
+
+	for _, err := range errors {
+		field := err.Field()
+		value := err.Value()
+		details := err.Details()
+
+		switch err.Type() {
+		case "invalid_type":
+			expected := details["expected"]
+			given := details["given"]
+			formattedErrors = append(formattedErrors,
+				fmt.Sprintf("Field '%s' must be of type %v but got %v", field, expected, given))
+
+		case "required":
+			formattedErrors = append(formattedErrors,
+				fmt.Sprintf("Missing required field '%s'", field))
+
+		case "enum":
+			if allowed, ok := details["allowed"].([]interface{}); ok {
+				var allowedStr []string
+				for _, v := range allowed {
+					allowedStr = append(allowedStr, fmt.Sprintf("%v", v))
+				}
+				formattedErrors = append(formattedErrors,
+					fmt.Sprintf("Field '%s' has invalid value '%v'. Allowed: %s", field, value, strings.Join(allowedStr, ", ")))
+			} else {
+				formattedErrors = append(formattedErrors,
+					fmt.Sprintf("Field '%s': %s", field, err.Description()))
+			}
+
+		case "string_gte":
+			formattedErrors = append(formattedErrors,
+				fmt.Sprintf("Field '%s' is too short. Minimum length is %v", field, details["min"]))
+
+		case "string_lte":
+			formattedErrors = append(formattedErrors,
+				fmt.Sprintf("Field '%s' is too long. Maximum length is %v", field, details["max"]))
+
+		case "number_gte":
+			formattedErrors = append(formattedErrors,
+				fmt.Sprintf("Field '%s' must be ≥ %v", field, details["min"]))
+
+		case "number_lte":
+			formattedErrors = append(formattedErrors,
+				fmt.Sprintf("Field '%s' must be ≤ %v", field, details["max"]))
+
+		case "pattern":
+			formattedErrors = append(formattedErrors,
+				fmt.Sprintf("Field '%s' must match pattern: %v", field, details["pattern"]))
+
+		case "additional_property_not_allowed":
+			formattedErrors = append(formattedErrors,
+				fmt.Sprintf("Field '%s' is not allowed here", field))
+
+		default:
+			formattedErrors = append(formattedErrors,
+				fmt.Sprintf("Field '%s': %s", field, err.Description()))
+		}
+	}
+
+	sort.Strings(formattedErrors)
+	return fmt.Errorf("validation errors:\n- %s", strings.Join(formattedErrors, "\n- "))
 }
 
 func _processActions(frameId, key string, inputActions []model.ActionDSLModel, variables []model.VariableJson) ([]model.ActionJson, error) {
