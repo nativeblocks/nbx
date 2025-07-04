@@ -10,8 +10,30 @@ import (
 )
 
 type FrameJson = model.FrameJson
-
 type FrameDSLModel = model.FrameDSLModel
+
+// DSL model types
+type VariableDSLModel = model.VariableDSLModel
+type BlockDSLModel = model.BlockDSLModel
+type BlockPropertyDSLModel = model.BlockPropertyDSLModel
+type BlockDataDSLModel = model.BlockDataDSLModel
+type BlockSlotDSLModel = model.BlockSlotDSLModel
+type ActionDSLModel = model.ActionDSLModel
+type ActionTriggerDSLModel = model.ActionTriggerDSLModel
+type TriggerPropertyDSLModel = model.TriggerPropertyDSLModel
+type TriggerDataDSLModel = model.TriggerDataDSLModel
+
+// JSON model types
+type RouteArgumentJson = model.RouteArgumentJson
+type VariableJson = model.VariableJson
+type BlockJson = model.BlockJson
+type BlockPropertyJson = model.BlockPropertyJson
+type BlockDataJson = model.BlockDataJson
+type BlockSlotJson = model.BlockSlotJson
+type ActionJson = model.ActionJson
+type ActionTriggerJson = model.ActionTriggerJson
+type TriggerPropertyJson = model.TriggerPropertyJson
+type TriggerDataJson = model.TriggerDataJson
 
 // ToDSL converts a FrameJson to a FrameDSLModel.
 func ToDSL(frame FrameJson) FrameDSLModel {
