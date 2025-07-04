@@ -11,52 +11,67 @@ import (
 )
 
 func ToJson(frameDSL model.FrameDSLModel, schema string, frameID string) (model.FrameJson, error) {
+	initialFrameId := frameID
+	if initialFrameId == "" {
+		initialFrameId = _generateId()
+	}
+
+	if len(frameDSL.Blocks) > 0 && frameDSL.Blocks[0].KeyType != "ROOT" {
+		return model.FrameJson{}, errors.New("first block's keyType must be 'ROOT'")
+	}
+
+	result, err := _validateDSL(frameDSL, schema)
+	if err != nil {
+		return model.FrameJson{}, err
+	}
+
+	variables := _createVariables(frameDSL.Variables, initialFrameId)
+	var actions []model.ActionJson
+	blocks, blockErr := _processBlocks(initialFrameId, frameDSL.Blocks, "", []model.BlockSlotJson{}, variables, func(blockActions []model.ActionJson) {
+		actions = append(actions, blockActions...)
+	})
+
+	var frameJson model.FrameJson
+	if result != nil && !result.Valid() {
+		frameJson = _createFrame(initialFrameId, frameDSL, variables, blocks, actions)
+		validationErrors := _formatValidationErrors(result, frameJson)
+		return model.FrameJson{}, fmt.Errorf("validation errors: %s", strings.Join(validationErrors, "; "))
+	}
+
+	if blockErr != nil {
+		return model.FrameJson{}, blockErr
+	}
+
+	if duplicateKeys := _findDuplicateKeys(blocks); len(duplicateKeys) > 0 {
+		return model.FrameJson{}, errors.New("duplicate block keys found: " + strings.Join(duplicateKeys, ","))
+	}
+
+	if frameJson.Actions == nil {
+		frameJson.Actions = []model.ActionJson{}
+	}
+	if frameJson.Blocks == nil {
+		frameJson.Blocks = []model.BlockJson{}
+	}
+
+	return frameJson, nil
+}
+
+func _validateDSL(frameDSL model.FrameDSLModel, schema string) (*gojsonschema.Result, error) {
+	schemaLoader := gojsonschema.NewStringLoader(schema)
 	if len(frameDSL.Blocks) > 0 && frameDSL.Blocks[0].KeyType == "ROOT" && frameDSL.Blocks[0].Slot == "" {
+		// because the root has no parent, we need to pass a null slot to it
 		validationDSL := frameDSL
 		validationDSL.Blocks = make([]model.BlockDSLModel, len(frameDSL.Blocks))
 		copy(validationDSL.Blocks, frameDSL.Blocks)
 		validationDSL.Blocks[0].Slot = "null"
-
-		schemaLoader := gojsonschema.NewStringLoader(schema)
-		documentLoader := gojsonschema.NewGoLoader(validationDSL)
-
-		result, err := gojsonschema.Validate(schemaLoader, documentLoader)
-		if err != nil {
-			return model.FrameJson{}, err
-		}
-
-		if !result.Valid() {
-			var allErrors []string
-			for _, errz := range result.Errors() {
-				allErrors = append(allErrors, errz.String())
-			}
-			return model.FrameJson{}, fmt.Errorf("validation errors: %s", strings.Join(allErrors, "; "))
-		}
-	} else {
-		schemaLoader := gojsonschema.NewStringLoader(schema)
-		documentLoader := gojsonschema.NewGoLoader(frameDSL)
-
-		result, err := gojsonschema.Validate(schemaLoader, documentLoader)
-		if err != nil {
-			return model.FrameJson{}, err
-		}
-
-		if !result.Valid() {
-			var allErrors []string
-			for _, errz := range result.Errors() {
-				allErrors = append(allErrors, errz.String())
-			}
-			return model.FrameJson{}, fmt.Errorf("validation errors: %s", strings.Join(allErrors, "; "))
-		}
+		return gojsonschema.Validate(schemaLoader, gojsonschema.NewGoLoader(validationDSL))
 	}
+	return gojsonschema.Validate(schemaLoader, gojsonschema.NewGoLoader(frameDSL))
+}
 
-	var frameId = frameID
-	if frameID == "" {
-		frameId = _generateId()
-	}
-
-	var variables []model.VariableJson
-	for _, variable := range frameDSL.Variables {
+func _createVariables(variableDSLs []model.VariableDSLModel, frameId string) []model.VariableJson {
+	variables := make([]model.VariableJson, 0, len(variableDSLs))
+	for _, variable := range variableDSLs {
 		variables = append(variables, model.VariableJson{
 			Id:      _generateId(),
 			FrameId: frameId,
@@ -65,44 +80,20 @@ func ToJson(frameDSL model.FrameDSLModel, schema string, frameID string) (model.
 			Type:    variable.Type,
 		})
 	}
+	return variables
+}
 
-	var actions []model.ActionJson
-
-	if len(frameDSL.Blocks) > 0 && frameDSL.Blocks[0].KeyType != "ROOT" {
-		return model.FrameJson{}, errors.New("first block's keyType must be 'ROOT'")
-	}
-
-	blocks, err := _processBlocks(frameId, frameDSL.Blocks, "", []model.BlockSlotJson{}, variables, func(blockActions []model.ActionJson) {
-		actions = append(actions, blockActions...)
-	})
-
-	if err != nil {
-		return model.FrameJson{}, err
-	}
-
-	hasDuplicateBlockKey := _findDuplicateKeys(blocks)
-	if len(hasDuplicateBlockKey) > 0 {
-		return model.FrameJson{}, errors.New("duplicate block keys found: " + strings.Join(hasDuplicateBlockKey, ","))
-	}
-
-	frame := model.FrameJson{
+func _createFrame(frameId string, dsl model.FrameDSLModel, variables []model.VariableJson, blocks []model.BlockJson, actions []model.ActionJson) model.FrameJson {
+	return model.FrameJson{
 		Id:             frameId,
-		Name:           frameDSL.Name,
-		Route:          frameDSL.Route,
-		RouteArguments: _convertRouteArguments(frameDSL.Route),
-		Type:           frameDSL.Type,
+		Name:           dsl.Name,
+		Route:          dsl.Route,
+		RouteArguments: _convertRouteArguments(dsl.Route),
+		Type:           dsl.Type,
 		Variables:      variables,
 		Blocks:         blocks,
 		Actions:        actions,
 	}
-
-	if frame.Actions == nil {
-		frame.Actions = []model.ActionJson{}
-	}
-	if frame.Blocks == nil {
-		frame.Blocks = []model.BlockJson{}
-	}
-	return frame, err
 }
 
 func _processActions(frameId, key string, inputActions []model.ActionDSLModel, variables []model.VariableJson) ([]model.ActionJson, error) {
