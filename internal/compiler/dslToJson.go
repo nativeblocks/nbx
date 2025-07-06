@@ -51,9 +51,14 @@ func ToJson(frameDSL model.FrameDSLModel, schema string, frameID string) (model.
 		return model.FrameJson{}, err
 	}
 
-	hasDuplicateBlockKey := _findDuplicateKeys(blocks)
+	hasDuplicateBlockKey := _findDuplicateBlockKey(blocks)
 	if len(hasDuplicateBlockKey) > 0 {
-		return model.FrameJson{}, fmt.Errorf("duplicate block keys found: %s", strings.Join(hasDuplicateBlockKey, ", "))
+		return model.FrameJson{}, fmt.Errorf("duplicate block key found: %s", strings.Join(hasDuplicateBlockKey, ", "))
+	}
+
+	hasDuplicateVariableKey := _findDuplicateVariableKey(variables)
+	if len(hasDuplicateVariableKey) > 0 {
+		return model.FrameJson{}, fmt.Errorf("duplicate variable key found: %s", strings.Join(hasDuplicateVariableKey, ", "))
 	}
 
 	frame := model.FrameJson{
@@ -94,7 +99,7 @@ func ToJson(frameDSL model.FrameDSLModel, schema string, frameID string) (model.
 	}
 
 	if !result.Valid() {
-		return model.FrameJson{}, fmt.Errorf("validation errors: %v", formatErrors(errorDetails)[0])
+		return model.FrameJson{}, fmt.Errorf("validation errors: %v", formatValidationErrors(errorDetails, frameDSL)[0])
 	}
 
 	return frame, nil
@@ -347,12 +352,28 @@ func _containsSlot(slots []model.BlockSlotJson, key string) bool {
 	return false
 }
 
-func _findDuplicateKeys(blocks []model.BlockJson) []string {
+func _findDuplicateBlockKey(blocks []model.BlockJson) []string {
 	keyCount := make(map[string]int)
 	var duplicates []string
 
 	for _, block := range blocks {
 		keyCount[block.Key]++
+	}
+
+	for key, count := range keyCount {
+		if count > 1 {
+			duplicates = append(duplicates, key)
+		}
+	}
+	return duplicates
+}
+
+func _findDuplicateVariableKey(variables []model.VariableJson) []string {
+	keyCount := make(map[string]int)
+	var duplicates []string
+
+	for _, variable := range variables {
+		keyCount[variable.Key]++
 	}
 
 	for key, count := range keyCount {
