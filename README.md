@@ -1,12 +1,10 @@
 # NBX
 
-A Go library for parsing and converting the NBX (Domain-Specific Language) for describing UI frames, variables, blocks, and actions into structured JSON, and vice versa.
+A Go library for parsing and converting the NBX DSL (Domain-Specific Language) for describing UI frames, variables, blocks, and actions into structured JSON, and vice versa.
 
 ## What is this?
 
 This project lets you describe UI screens and their logic in a readable text format (DSL), and then turn that into JSON for use in other systems. You can also go the other way: take JSON and turn it back into the DSL.
-
-It's not a framework, not a code generator, and not a magic tool. It's just a parser and converter for a specific DSL.
 
 ---
 
@@ -17,13 +15,13 @@ It's not a framework, not a code generator, and not a magic tool. It's just a pa
 - **Block**: A UI element (like a button, input, or container). Blocks can be nested.
 - **Slot**: A named area inside a block where you can put other blocks.
 - **Action**: Something that happens in response to an event (like a button click).
-- **Trigger**: A step in an action, possibly with conditions or branches.
+- **Trigger**: A function execution on a specific events (NEXT, END, FAILURE, SUCCESS).
 
 ---
 
 ## Example
 
-Here's a real example of the DSL, taken from the tests:
+Here's an example of the DSL:
 
 ```
 frame(
@@ -86,8 +84,12 @@ frame(
   `.action(event = "eventName") { ... }`
 
 - **Trigger**:  
-  `trigger(keyType = "TYPE", name = "description")`  
-  Triggers can have `.then("CONDITION") { ... }` blocks for branching.
+  `trigger(keyType = "TYPE", name = "a function name or description of what this function does")`  
+  Triggers can have `.then("NEXT") { ... }` blocks for branching.
+
+- **Assign Data/Property**:  
+  `.assignData(key = value)`
+  `.assignProperty(key = value)`
 
 ---
 
@@ -116,21 +118,6 @@ if err != nil {
     // handle error
 }
 ```
-
-### Requirements
-
-- Go 1.24+
-- No CLI yet; use as a Go library.
-
----
-
-## Internal Package Structure
-
-This project uses Go's [`internal/`](https://go.dev/doc/go1.4#internalpackages) directory pattern to hide all implementation details. Only the root `nbx` package is public. This means:
-
-- You **cannot** import `internal/lexer`, `internal/compiler`, `internal/model`, or `internal/parser` from outside this module.
-- Only the functions and types defined in `nbx.go` are part of the public API.
-- This keeps the API clean and stable, and allows internal refactoring without breaking users.
 
 ---
 
