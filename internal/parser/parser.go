@@ -327,16 +327,10 @@ func (p *Parser) parseBlockPropMethod(block *model.BlockDSLModel) {
 		propValue := p.curToken.Literal
 
 		switch propKey {
-		case "valueMobile":
-			valueMobile = propValue
 		case "mobile":
 			valueMobile = propValue
-		case "valueTablet":
-			valueTablet = propValue
 		case "tablet":
 			valueTablet = propValue
-		case "valueDesktop":
-			valueDesktop = propValue
 		case "desktop":
 			valueDesktop = propValue
 		case "value":

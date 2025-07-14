@@ -34,24 +34,24 @@ frame(
     var username: STRING = ""
     var password: STRING = ""
 
-    block(keyType = "ROOT", key = "root", visibility = visible)
+    block(keyType = "ROOT", key = "root", visibility = visible, version = 1)
     .slot("content") {
-        block(keyType = "COLUMN", key = "main", visibility = visible)
+        block(keyType = "COLUMN", key = "main", visibility = visible, version = 1)
         .slot("content") {
-            block(keyType = "INPUT", key = "username", visibility = visible)
+            block(keyType = "INPUT", key = "username", visibility = visible, version = 1)
             .data(text = username)
-            block(keyType = "INPUT", key = "password", visibility = visible)
-            .prop(color = (valueMobile = "NONE", valueTablet = "NONE", valueDesktop = "NONE"))
+            block(keyType = "INPUT", key = "password", visibility = visible, version = 1)
+            .prop(fontSize = (mobile = "14", tablet = "14", desktop = "14"))
             .data(text = password)
             .action(event = "onTextChange") {
-                trigger(keyType = "VALIDATE", name = "validate password")
+                trigger(keyType = "VALIDATE", name = "validate password", version = 1)
                 .then("FAILURE") {
-                    trigger(keyType = "SHOW_ERROR", name = "show error 1")
-                    trigger(keyType = "CHANGE_COLOR", name = "change color to red")
+                    trigger(keyType = "SHOW_ERROR", name = "show error 1", version = 1)
+                    trigger(keyType = "CHANGE_COLOR", name = "change color to red", version = 1)
                     .prop(color = "RED")
                 }
                 .then("SUCCESS") {
-                    trigger(keyType = "SHOW_OK", name = "show ok")
+                    trigger(keyType = "SHOW_OK", name = "show ok", version = 1)
                     .prop(color = "GREEN")
                 }
             }
@@ -76,11 +76,11 @@ frame(
 - **Slot**:  
   `.slot("slotName") { ... }`
 
-- **Assign Data/Property**:  
+- **Data/Property**:  
   `.data(key = value)`  
-  `.prop(key = value)`  
+  `.prop(key = value, key2 = value2)`  
   You can assign for different devices:  
-  `.prop(color = (valueMobile = "NONE", valueTablet = "NONE", valueDesktop = "NONE"))`
+  `.prop(color = (mobile = "NONE", tablet = "NONE", desktop = "NONE"))`
 
 - **Action**:  
   `.action(event = "eventName") { ... }`

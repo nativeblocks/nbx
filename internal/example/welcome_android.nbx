@@ -13,44 +13,29 @@ frame(
     block(keyType = "ROOT", key = "root", visibility = visible)
     .slot("content") {
         block(keyType = "nativeblocks/column", key = "mainColumn", visibility = visible, version = 1)
-        .prop(horizontalAlignment = (valueMobile = "centerHorizontally", valueTablet = "centerHorizontally", valueDesktop = "centerHorizontally"))
-        .prop(width = (valueMobile = "match", valueTablet = "match", valueDesktop = "match"))
-        .prop(height = (valueMobile = "match", valueTablet = "match", valueDesktop = "match"))
+        .prop(horizontalAlignment = "centerHorizontally", width = "match", height = "match")
         .slot("content") {
+
             block(keyType = "nativeblocks/column", key = "nativeblocksColumn", VISIBILITY = visible, version = 1)
-            .prop(horizontalAlignment = (valueMobile = "centerHorizontally", valueTablet = "centerHorizontally", valueDesktop = "centerHorizontally"))
-            .prop(paddingTop = (valueMobile = "64", valueTablet = "64", valueDesktop = "64"))
-            .prop(weight = (valueMobile = "0.4f", valueTablet = "0.4f", valueDesktop = "0.4f"))
-            .prop(verticalArrangement = (valueMobile = "spaceAround", valueTablet = "spaceAround", valueDesktop = "spaceAround"))
+            .prop(horizontalAlignment = "centerHorizontally", paddingTop = "64", weight = "0.4f", verticalArrangement = "spaceAround")
             .slot("content") {
+
                 block(keyType = "nativeblocks/image", key = "logo", visibility = visible, version = 1)
-                .prop(scaleType = (valueMobile = "inside", valueTablet = "inside", valueDesktop = "inside"))
-                .prop(width = (valueMobile = "128", valueTablet = "128", valueDesktop = "128"))
-                .prop(height = (valueMobile = "128", valueTablet = "128", valueDesktop = "128"))
+                .prop(scaleType = "inside", width = "128", height = "128")
                 .data(imageUrl = logo)
 
                 block(keyType = "nativeblocks/text", key = "welcome", visibility = visible, version = 1)
-                .prop(fontSize = (valueMobile = "24", valueTablet = "24", valueDesktop = "24"))
-                .prop(textAlign = (valueMobile = "center", valueTablet = "center", valueDesktop = "center"))
-                .prop(width = (valueMobile = "wrap", valueTablet = "wrap", valueDesktop = "wrap"))
+                .prop(fontSize = "24", textAlign = "center", width = "wrap")
                 .data(text = welcome)
             }
+
             block(keyType = "nativeblocks/row", key = "buttonsRow", visibility = visible, version = 1)
-            .prop(horizontalArrangement = (valueMobile = "spaceAround", valueTablet = "spaceAround", valueDesktop = "spaceAround"))
-            .prop(verticalAlignment = (valueMobile = "centerVertically", valueTablet = "centerVertically", valueDesktop = "centerVertically"))
-            .prop(paddingTop = (valueMobile = "12", valueTablet = "12", valueDesktop = "12"))
-            .prop(weight = (valueMobile = "0.6f", valueTablet = "0.6f", valueDesktop = "0.6f"))
+            .prop(horizontalArrangement = "spaceAround", verticalAlignment = "centerVertically", paddingTop = "12", weight = "0.6f")
             .slot("content") {
+
                 block(keyType = "nativeblocks/button", key = "decreaseButton", visibility = visible, version = 1)
-                .prop(backgroundColor = (valueMobile = "#2563EB", valueTablet = "#2563EB", valueDesktop = "#2563EB"))
-                .prop(borderColor = (valueMobile = "#2563EB", valueTablet = "#2563EB", valueDesktop = "#2563EB"))
-                .prop(radiusTopStart = (valueMobile = "32", valueTablet = "32", valueDesktop = "32"))
-                .prop(radiusTopEnd = (valueMobile = "32", valueTablet = "32", valueDesktop = "32"))
-                .prop(radiusBottomStart = (valueMobile = "32", valueTablet = "32", valueDesktop = "32"))
-                .prop(radiusBottomEnd = (valueMobile = "32", valueTablet = "32", valueDesktop = "32"))
-                .prop(fontSize = (valueMobile = "20", valueTablet = "20", valueDesktop = "20"))
-                .data(text = decreaseButton)
-                .data(enable = enable)
+                .prop(backgroundColor = "#2563EB", borderColor = "#2563EB", radiusTopStart = "32", radiusTopEnd = "32", radiusBottomStart = "32", radiusBottomEnd = "32", fontSize = "20")
+                .data(text = decreaseButton, enable = enable)
                 .action(event = "onClick") {
                     trigger(keyType = "nativeblocks/change_variable", name = "decrease", version = 1)
                     .prop(variableValue = "#SCRIPT
@@ -65,21 +50,14 @@ frame(
                     #ENDSCRIPT")
                     .data(variableKey = count)
                 }
+
                 block(keyType = "nativeblocks/text", key = "countText", visibility = visible, version = 1)
-                .prop(fontSize = (valueMobile = "18", valueTablet = "18", valueDesktop = "18"))
-                .prop(textAlign = (valueMobile = "center", valueTablet = "center", valueDesktop = "center"))
-                .prop(width = (valueMobile = "128", valueTablet = "128", valueDesktop = "128"))
+                .prop(fontSize = "18", textAlign = "center", width = "128")
                 .data(text = count)
+
                 block(keyType = "nativeblocks/button", key = "increaseButton", visibility = visible, version = 1)
-                .prop(backgroundColor = (valueMobile = "#2563EB", valueTablet = "#2563EB", valueDesktop = "#2563EB"))
-                .prop(borderColor = (valueMobile = "#2563EB", valueTablet = "#2563EB", valueDesktop = "#2563EB"))
-                .prop(radiusTopStart = (valueMobile = "32", valueTablet = "32", valueDesktop = "32"))
-                .prop(radiusTopEnd = (valueMobile = "32", valueTablet = "32", valueDesktop = "32"))
-                .prop(radiusBottomStart = (valueMobile = "32", valueTablet = "32", valueDesktop = "32"))
-                .prop(radiusBottomEnd = (valueMobile = "32", valueTablet = "32", valueDesktop = "32"))
-                .prop(fontSize = (valueMobile = "20", valueTablet = "20", valueDesktop = "20"))
-                .data(text = increaseButton)
-                .data(enable = enable)
+                .prop(backgroundColor = "#2563EB", borderColor = "#2563EB", radiusTopStart = "32", radiusTopEnd = "32", radiusBottomStart = "32", radiusBottomEnd = "32", fontSize = "20")
+                .data(text = increaseButton, enable = enable)
                 .action(event = "onClick") {
                     trigger(keyType = "nativeblocks/change_variable", name = "increase", version = 1)
                     .prop(variableValue = "#SCRIPT

@@ -113,7 +113,7 @@ frame(
             block(keyType = "INPUT", key = "username", visibility = visible)
             .data(text = username)
             block(keyType = "INPUT", key = "password", visibility = visible)
-            .prop(color = (valueMobile = "NONE", valueTablet = "NONE", valueDesktop = "NONE"))
+            .prop(color = (mobile = "NONE", tablet = "NONE", desktop = "NONE"))
             .data(text = password)
             .action(event = "onTextChange") {
                 trigger(keyType = "VALIDATE", name = "validate password")
@@ -170,15 +170,15 @@ frame(
             block(keyType = "nativeblocks/TEXT_FIELD", key = "username", visibility = visible)
             .data(text = username)
             block(keyType = "nativeblocks/TEXT_FIELD", key = "password", visibility = visible)
-            .prop(textColor = (valueMobile = "NONE", valueTablet = "NONE", valueDesktop = "NONE"))
+            .prop(textColor = (mobile = "NONE", tablet = "NONE", desktop = "NONE"))
             .data(text = password)
             .action(event = "onTextChange") {
                 trigger(keyType = "nativeblocks/CHANGE_BLOCK_PROPERTY", name = "show error")
                 .prop(propertyKey = "textColor")
-                .prop(propertyValueDesktop = "RED")
+                .prop(propertydesktop = "RED")
 				trigger(keyType = "nativeblocks/CHANGE_BLOCK_PROPERTY", name = "show success")
 				.prop(propertyKey = "textColor")
-				.prop(propertyValueDesktop = "GREEN")
+				.prop(propertydesktop = "GREEN")
             }
         }
     }
