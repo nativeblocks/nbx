@@ -111,20 +111,20 @@ frame(
         block(keyType = "COLUMN", key = "main", visibility = visible)
         .slot("content") {
             block(keyType = "INPUT", key = "username", visibility = visible)
-            .assignData(text = username)
+            .data(text = username)
             block(keyType = "INPUT", key = "password", visibility = visible)
-            .assignProperty(color = (valueMobile = "NONE", valueTablet = "NONE", valueDesktop = "NONE"))
-            .assignData(text = password)
+            .prop(color = (valueMobile = "NONE", valueTablet = "NONE", valueDesktop = "NONE"))
+            .data(text = password)
             .action(event = "onTextChange") {
                 trigger(keyType = "VALIDATE", name = "validate password")
                 .then("FAILURE") {
                     trigger(keyType = "SHOW_ERROR", name = "show error 1")
                     trigger(keyType = "CHANGE_COLOR", name = "change color to red")
-                    .assignProperty(color = "RED")
+                    .prop(color = "RED")
                 }
                 .then("SUCCESS") {
                     trigger(keyType = "SHOW_OK", name = "show ok")
-                    .assignProperty(color = "GREEN")
+                    .prop(color = "GREEN")
                 }
             }
         }    
@@ -168,17 +168,17 @@ frame(
         block(keyType = "nativeblocks/COLUMN", key = "main", visibility = visible)
         .slot("content") {
             block(keyType = "nativeblocks/TEXT_FIELD", key = "username", visibility = visible)
-            .assignData(text = username)
+            .data(text = username)
             block(keyType = "nativeblocks/TEXT_FIELD", key = "password", visibility = visible)
-            .assignProperty(textColor = (valueMobile = "NONE", valueTablet = "NONE", valueDesktop = "NONE"))
-            .assignData(text = password)
+            .prop(textColor = (valueMobile = "NONE", valueTablet = "NONE", valueDesktop = "NONE"))
+            .data(text = password)
             .action(event = "onTextChange") {
                 trigger(keyType = "nativeblocks/CHANGE_BLOCK_PROPERTY", name = "show error")
-                .assignProperty(propertyKey = "textColor")
-                .assignProperty(propertyValueDesktop = "RED")
+                .prop(propertyKey = "textColor")
+                .prop(propertyValueDesktop = "RED")
 				trigger(keyType = "nativeblocks/CHANGE_BLOCK_PROPERTY", name = "show success")
-				.assignProperty(propertyKey = "textColor")
-				.assignProperty(propertyValueDesktop = "GREEN")
+				.prop(propertyKey = "textColor")
+				.prop(propertyValueDesktop = "GREEN")
             }
         }
     }
@@ -218,7 +218,7 @@ frame(
         block(keyType = "COLUMN", key = "main", visibility = visible)
         .slot("content") {
             block(keyType = "INPUT", key = "username", visibility = visible)
-            .assignData(text = username)
+            .data(text = username)
         }
     }
 }`
@@ -252,12 +252,12 @@ frame(
     route = "/login"
 ) {
     block(keyType = "INPUT", key = "password", visibility = visible)
-    .assignData(text = password)
+    .data(text = password)
     .action(event = "onTextChange") {
         trigger(keyType = "VALIDATE", name = "validate password")
         .then("SUCCESS") {
             trigger(keyType = "SHOW_OK", name = "show ok")
-            .assignProperty(color = "GREEN")
+            .prop(color = "GREEN")
         }
     }
 }`

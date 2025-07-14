@@ -130,7 +130,7 @@ func (l *Lexer) skipComment() {
 	l.readChar()
 	l.readChar()
 
-	// Continue reading until end of line or EOF
+	// Continue reading until the end of line or EOF
 	for l.ch != '\n' && l.ch != 0 {
 		l.readChar()
 	}
@@ -228,7 +228,7 @@ func (l *Lexer) readNumber() Token {
 
 func lookupKeyword(lit string) TokenType {
 	switch lit {
-	case "frame", "var", "slot", "trigger", "assignData", "assignProperty", "action", "block", "then":
+	case "frame", "var", "slot", "trigger", "prop", "action", "block", "then", "props", "data":
 		return TOKEN_KEYWORD
 	case "true", "false":
 		return TOKEN_BOOLEAN

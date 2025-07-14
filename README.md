@@ -39,20 +39,20 @@ frame(
         block(keyType = "COLUMN", key = "main", visibility = visible)
         .slot("content") {
             block(keyType = "INPUT", key = "username", visibility = visible)
-            .assignData(text = username)
+            .data(text = username)
             block(keyType = "INPUT", key = "password", visibility = visible)
-            .assignProperty(color = (valueMobile = "NONE", valueTablet = "NONE", valueDesktop = "NONE"))
-            .assignData(text = password)
+            .prop(color = (valueMobile = "NONE", valueTablet = "NONE", valueDesktop = "NONE"))
+            .data(text = password)
             .action(event = "onTextChange") {
                 trigger(keyType = "VALIDATE", name = "validate password")
                 .then("FAILURE") {
                     trigger(keyType = "SHOW_ERROR", name = "show error 1")
                     trigger(keyType = "CHANGE_COLOR", name = "change color to red")
-                    .assignProperty(color = "RED")
+                    .prop(color = "RED")
                 }
                 .then("SUCCESS") {
                     trigger(keyType = "SHOW_OK", name = "show ok")
-                    .assignProperty(color = "GREEN")
+                    .prop(color = "GREEN")
                 }
             }
         }    
@@ -77,10 +77,10 @@ frame(
   `.slot("slotName") { ... }`
 
 - **Assign Data/Property**:  
-  `.assignData(key = value)`  
-  `.assignProperty(key = value)`  
+  `.data(key = value)`  
+  `.prop(key = value)`  
   You can assign for different devices:  
-  `.assignProperty(color = (valueMobile = "NONE", valueTablet = "NONE", valueDesktop = "NONE"))`
+  `.prop(color = (valueMobile = "NONE", valueTablet = "NONE", valueDesktop = "NONE"))`
 
 - **Action**:  
   `.action(event = "eventName") { ... }`

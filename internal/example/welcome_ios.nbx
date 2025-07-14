@@ -1,0 +1,117 @@
+frame(
+    name = "welcome",
+    route = "/welcome"
+) {
+    // Variables
+    var visible: BOOLEAN = true
+    var enable: BOOLEAN = true
+    var count: INT = 0
+    var decreaseButton: STRING = "-"
+    var increaseButton: STRING = "+"
+    var welcomeText: STRING = "Welcome to Nativeblocks"
+    var logo: STRING = "https://nativeblocks.io/nativeblocks_logo.png"
+
+    // Root container
+    block(keyType = "ROOT", key = "root", visibility = visible)
+    .slot("content") {
+        // Outer VStack
+        block(keyType = "nativeblocks/vstack", key = "outerVStack", visibility = visible, version = 1)
+        .prop(width = (valueMobile = "fill", valueTablet = "fill", valueDesktop = "fill"))
+        .prop(height = (valueMobile = "fill", valueTablet = "fill", valueDesktop = "fill"))
+        .slot("content") {
+            block(keyType = "nativeblocks/spacer", key = "spacer1", visibility = visible, version = 1)
+
+            // Logo & Welcome text VStack
+            block(keyType = "nativeblocks/vstack", key = "logoVStack", visibility = visible, version = 1)
+            .prop(spacing = (valueMobile = "16", valueTablet = "16", valueDesktop = "16"))
+            .prop(alignmentHorizontal = (valueMobile = "center", valueTablet = "center", valueDesktop = "center"))
+            .slot("content") {
+
+                // Logo image
+                block(keyType = "nativeblocks/image", key = "logoImage", visibility = visible, version = 1)
+                .prop(width = (valueMobile = "128", valueTablet = "128", valueDesktop = "128"))
+                .prop(height = (valueMobile = "128", valueTablet = "128", valueDesktop = "128"))
+                .prop(contentMode = (valueMobile = "fit", valueTablet = "fit", valueDesktop = "fit"))
+                .data(imageUrl = logo)
+
+                // Welcome text
+                block(keyType = "nativeblocks/text", key = "welcomeText", visibility = visible, version = 1)
+                .prop(fontSize = (valueMobile = "24", valueTablet = "24", valueDesktop = "24"))
+                .prop(multilineTextAlignment = (valueMobile = "center", valueTablet = "center", valueDesktop = "center"))
+                .prop(width = (valueMobile = "fill", valueTablet = "fill", valueDesktop = "fill"))
+                .data(text = welcomeText)
+            }
+
+            // Controls HStack
+            block(keyType = "nativeblocks/hstack", key = "controlsHStack", visibility = visible, version = 1)
+            .prop(spacing = (valueMobile = "16", valueTablet = "16", valueDesktop = "16"))
+            .prop(width = (valueMobile = "fill", valueTablet = "fill", valueDesktop = "fill"))
+            .prop(alignmentHorizontal = (valueMobile = "center", valueTablet = "center", valueDesktop = "center"))
+            .slot("content") {
+                block(keyType = "nativeblocks/spacer", key = "spacer_control_1", visibility = visible, version = 1)
+
+                // Decrease button
+                block(keyType = "nativeblocks/button", key = "decreaseBtn", visibility = visible, version = 1)
+                .prop(width = (valueMobile = "56", valueTablet = "56", valueDesktop = "56"))
+                .prop(height = (valueMobile = "40", valueTablet = "40", valueDesktop = "40"))
+                .prop(backgroundColor = (valueMobile = "#2563EB", valueTablet = "#2563EB", valueDesktop = "#2563EB"))
+                .prop(radiusTopStart = (valueMobile = "32", valueTablet = "32", valueDesktop = "32"))
+                .prop(radiusTopEnd = (valueMobile = "32", valueTablet = "32", valueDesktop = "32"))
+                .prop(radiusBottomStart = (valueMobile = "32", valueTablet = "32", valueDesktop = "32"))
+                .prop(radiusBottomEnd = (valueMobile = "32", valueTablet = "32", valueDesktop = "32"))
+                .prop(fontSize = (valueMobile = "20", valueTablet = "20", valueDesktop = "20"))
+                .data(text = decreaseButton)
+                .data(enable = enable)
+                .action(event = "onClick") {
+                    trigger(keyType = "nativeblocks/change_variable", name = "decrease", version = 1)
+                    .prop(variableValue = "#SCRIPT
+                    const count = {var:count}
+                    let result = count
+                    if (count >= 1) {
+                        result = count - 1
+                    } else {
+                        result = count
+                    }
+                    result
+                    #ENDSCRIPT")
+                    .data(variableKey = count)
+                }
+
+                // Counter text
+                block(keyType = "nativeblocks/text", key = "counterText", visibility = visible, version = 1)
+                .prop(fontSize = (valueMobile = "18", valueTablet = "18", valueDesktop = "18"))
+                .prop(width = (valueMobile = "128", valueTablet = "128", valueDesktop = "128"))
+                .prop(height = (valueMobile = "40", valueTablet = "40", valueDesktop = "40"))
+                .prop(multilineTextAlignment = (valueMobile = "center", valueTablet = "center", valueDesktop = "center"))
+                .data(text = count)
+
+                // Increase button
+                block(keyType = "nativeblocks/button", key = "increaseBtn", visibility = visible, version = 1)
+                .prop(width = (valueMobile = "56", valueTablet = "56", valueDesktop = "56"))
+                .prop(height = (valueMobile = "40", valueTablet = "40", valueDesktop = "40"))
+                .prop(backgroundColor = (valueMobile = "#2563EB", valueTablet = "#2563EB", valueDesktop = "#2563EB"))
+                .prop(radiusTopStart = (valueMobile = "32", valueTablet = "32", valueDesktop = "32"))
+                .prop(radiusTopEnd = (valueMobile = "32", valueTablet = "32", valueDesktop = "32"))
+                .prop(radiusBottomStart = (valueMobile = "32", valueTablet = "32", valueDesktop = "32"))
+                .prop(radiusBottomEnd = (valueMobile = "32", valueTablet = "32", valueDesktop = "32"))
+                .prop(fontSize = (valueMobile = "20", valueTablet = "20", valueDesktop = "20"))
+                .data(text = increaseButton)
+                .data(enable = enable)
+                .action(event = "onClick") {
+                    trigger(keyType = "nativeblocks/change_variable", name = "increase", version = 1)
+                    .prop(variableValue = "#SCRIPT
+                    const count = {var:count}
+                    const result = count + 1
+                    result
+                    #ENDSCRIPT")
+                    .data(variableKey = count)
+                }
+                block(keyType = "nativeblocks/spacer", key = "spacer_control_2", visibility = visible, version = 1)
+            }
+            .prop(paddingTop = (valueMobile = "12", valueTablet = "12", valueDesktop = "12"))
+            .prop(paddingBottom = (valueMobile = "32", valueTablet = "32", valueDesktop = "32"))
+
+            block(keyType = "nativeblocks/spacer", key = "spacer2", visibility = visible, version = 1)
+        }
+    }
+}
