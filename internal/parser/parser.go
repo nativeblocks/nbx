@@ -17,7 +17,7 @@ type Parser struct {
 func NewParser(l *lexer.Lexer) *Parser {
 	p := &Parser{
 		l:      l,
-		errors: []string{},
+		errors: make([]string, 0, 0),
 	}
 	p._nextToken()
 	p._nextToken()
@@ -96,7 +96,7 @@ func (p *Parser) _parseKeyValuePairs() map[string]string {
 
 // _parseBlockData parses a .data() declaration and returns a list of data items
 func (p *Parser) _parseBlockData() []model.BlockDataDSLModel {
-	var dataList []model.BlockDataDSLModel
+	dataList := make([]model.BlockDataDSLModel, 0, 0)
 
 	if !p._expectPeek(lexer.TOKEN_LPAREN) {
 		return dataList
@@ -137,12 +137,19 @@ func (p *Parser) _parseBlockData() []model.BlockDataDSLModel {
 		}
 	}
 
+	// Enforce that len == cap for dataList
+	if cap(dataList) != len(dataList) {
+		tmp := make([]model.BlockDataDSLModel, len(dataList))
+		copy(tmp, dataList)
+		dataList = tmp
+	}
+
 	return dataList
 }
 
 // _parseTriggerData parses a trigger .data() declaration and returns a list of data items
 func (p *Parser) _parseTriggerData() []model.TriggerDataDSLModel {
-	var dataList []model.TriggerDataDSLModel
+	dataList := make([]model.TriggerDataDSLModel, 0, 0)
 
 	if !p._expectPeek(lexer.TOKEN_LPAREN) {
 		return dataList
@@ -183,12 +190,19 @@ func (p *Parser) _parseTriggerData() []model.TriggerDataDSLModel {
 		}
 	}
 
+	// Enforce that len == cap for dataList
+	if cap(dataList) != len(dataList) {
+		tmp := make([]model.TriggerDataDSLModel, len(dataList))
+		copy(tmp, dataList)
+		dataList = tmp
+	}
+
 	return dataList
 }
 
 // _parseBlockProperty parses a block .prop() declaration and returns a list of properties
 func (p *Parser) _parseBlockProperty() []model.BlockPropertyDSLModel {
-	var propList []model.BlockPropertyDSLModel
+	propList := make([]model.BlockPropertyDSLModel, 0, 0)
 
 	if !p._expectPeek(lexer.TOKEN_LPAREN) {
 		return propList
@@ -200,66 +214,117 @@ func (p *Parser) _parseBlockProperty() []model.BlockPropertyDSLModel {
 		return propList
 	}
 
-	// Parse all property declarations
 	for !p._curTokenIs(lexer.TOKEN_RPAREN) && !p._curTokenIs(lexer.TOKEN_EOF) {
 		p._nextToken()
+
+		// Property key
 		if !p._curTokenIs(lexer.TOKEN_IDENT) {
 			p.errors = append(p.errors, "Expected identifier in prop declaration")
 			return propList
 		}
-		key := p.curToken.Literal
+		propKey := p.curToken.Literal
 
 		if !p._expectPeek(lexer.TOKEN_ASSIGN) {
 			return propList
 		}
 
-		if !p._expectPeek(lexer.TOKEN_LPAREN) {
-			return propList
-		}
+		// Value: either a group (for multi-device) or a single value
+		p._nextToken()
+		if p.curToken.Type == lexer.TOKEN_LPAREN {
+			// Handle per-device or grouped values
+			deviceValues := make(map[string]string)
+			for {
+				p._nextToken()
 
-		// Parse property values
-		var valueMobile, valueTablet, valueDesktop string
-		propValues := p._parseKeyValuePairs()
+				if p.curToken.Type == lexer.TOKEN_RPAREN {
+					break
+				}
 
-		// Handle different property value formats
-		if val, ok := propValues["value"]; ok {
-			valueMobile = val
-			valueTablet = val
-			valueDesktop = val
-		}
-		if val, ok := propValues["valueMobile"]; ok {
-			valueMobile = val
-		}
-		if val, ok := propValues["mobile"]; ok {
-			valueMobile = val
-		}
-		if val, ok := propValues["valueTablet"]; ok {
-			valueTablet = val
-		}
-		if val, ok := propValues["tablet"]; ok {
-			valueTablet = val
-		}
-		if val, ok := propValues["valueDesktop"]; ok {
-			valueDesktop = val
-		}
-		if val, ok := propValues["desktop"]; ok {
-			valueDesktop = val
-		}
+				if p.curToken.Type != lexer.TOKEN_IDENT {
+					p.errors = append(p.errors, "Expected identifier inside property value parenthesis")
+					return propList
+				}
 
-		propList = append(propList, model.BlockPropertyDSLModel{
-			Key:          key,
-			ValueMobile:  valueMobile,
-			ValueTablet:  valueTablet,
-			ValueDesktop: valueDesktop,
-			Type:         "PLACEHOLDER",
-		})
+				deviceKey := p.curToken.Literal
+				if !p._expectPeek(lexer.TOKEN_ASSIGN) {
+					return propList
+				}
+				p._nextToken()
+				deviceValue := p.curToken.Literal
+				deviceValues[deviceKey] = deviceValue
+
+				if p._peekTokenIs(lexer.TOKEN_COMMA) {
+					p._nextToken()
+					continue
+				} else if p._peekTokenIs(lexer.TOKEN_RPAREN) {
+					// Not advancing here; the for will step and break
+					continue
+				}
+			}
+
+			// Assign values with priority order
+			mobile := ""
+			tablet := ""
+			desktop := ""
+
+			if v, ok := deviceValues["value"]; ok {
+				mobile = v
+				tablet = v
+				desktop = v
+			}
+			if v, ok := deviceValues["valueMobile"]; ok {
+				mobile = v
+			}
+			if v, ok := deviceValues["mobile"]; ok {
+				mobile = v
+			}
+			if v, ok := deviceValues["valueTablet"]; ok {
+				tablet = v
+			}
+			if v, ok := deviceValues["tablet"]; ok {
+				tablet = v
+			}
+			if v, ok := deviceValues["valueDesktop"]; ok {
+				desktop = v
+			}
+			if v, ok := deviceValues["desktop"]; ok {
+				desktop = v
+			}
+
+			propList = append(propList, model.BlockPropertyDSLModel{
+				Key:          propKey,
+				ValueMobile:  mobile,
+				ValueTablet:  tablet,
+				ValueDesktop: desktop,
+				Type:         "PLACEHOLDER",
+			})
+		} else {
+			// Single value (non-multiplatform)
+			value := p.curToken.Literal
+			propList = append(propList, model.BlockPropertyDSLModel{
+				Key:          propKey,
+				ValueMobile:  value,
+				ValueTablet:  value,
+				ValueDesktop: value,
+				Type:         "PLACEHOLDER",
+			})
+		}
 
 		if p._peekTokenIs(lexer.TOKEN_COMMA) {
 			p._nextToken()
-		} else if p._peekTokenIs(lexer.TOKEN_RPAREN) {
+			continue
+		}
+		if p._peekTokenIs(lexer.TOKEN_RPAREN) {
 			p._nextToken()
 			break
 		}
+	}
+
+	// Enforce that len == cap for propList
+	if cap(propList) != len(propList) {
+		tmp := make([]model.BlockPropertyDSLModel, len(propList))
+		copy(tmp, propList)
+		propList = tmp
 	}
 
 	return propList
@@ -267,7 +332,7 @@ func (p *Parser) _parseBlockProperty() []model.BlockPropertyDSLModel {
 
 // _parseTriggerProperty parses a trigger .prop() declaration and returns a list of properties
 func (p *Parser) _parseTriggerProperty() []model.TriggerPropertyDSLModel {
-	var propList []model.TriggerPropertyDSLModel
+	propList := make([]model.TriggerPropertyDSLModel, 0, 0)
 
 	if !p._expectPeek(lexer.TOKEN_LPAREN) {
 		return propList
@@ -324,6 +389,13 @@ func (p *Parser) _parseTriggerProperty() []model.TriggerPropertyDSLModel {
 		}
 	}
 
+	// Enforce that len == cap for propList
+	if cap(propList) != len(propList) {
+		tmp := make([]model.TriggerPropertyDSLModel, len(propList))
+		copy(tmp, propList)
+		propList = tmp
+	}
+
 	return propList
 }
 
@@ -347,6 +419,12 @@ func (p *Parser) _parseSlot(block *model.BlockDSLModel) {
 	// Create a slot
 	slot := model.BlockSlotDSLModel{Slot: slotName}
 	block.Slots = append(block.Slots, slot)
+	// Enforce that len == cap for block.Slots
+	if cap(block.Slots) != len(block.Slots) {
+		tmp := make([]model.BlockSlotDSLModel, len(block.Slots))
+		copy(tmp, block.Slots)
+		block.Slots = tmp
+	}
 
 	// Parse child blocks in the slot
 	for !p._curTokenIs(lexer.TOKEN_RBRACE) && !p._curTokenIs(lexer.TOKEN_EOF) {
@@ -355,6 +433,12 @@ func (p *Parser) _parseSlot(block *model.BlockDSLModel) {
 			if child != nil {
 				child.Slot = slotName
 				block.Blocks = append(block.Blocks, *child)
+				// Enforce that len == cap for block.Blocks
+				if cap(block.Blocks) != len(block.Blocks) {
+					tmp := make([]model.BlockDSLModel, len(block.Blocks))
+					copy(tmp, block.Blocks)
+					block.Blocks = tmp
+				}
 			}
 		}
 		p._nextToken()
@@ -384,6 +468,12 @@ func (p *Parser) _parseThen(trigger *model.ActionTriggerDSLModel) {
 			nestedTrigger := p._parseTriggerWithContext(thenValue)
 			if nestedTrigger != nil {
 				trigger.Triggers = append(trigger.Triggers, *nestedTrigger)
+				// Enforce that len == cap for trigger.Triggers
+				if cap(trigger.Triggers) != len(trigger.Triggers) {
+					tmp := make([]model.ActionTriggerDSLModel, len(trigger.Triggers))
+					copy(tmp, trigger.Triggers)
+					trigger.Triggers = tmp
+				}
 			}
 		}
 		p._nextToken()
@@ -393,8 +483,8 @@ func (p *Parser) _parseThen(trigger *model.ActionTriggerDSLModel) {
 func (p *Parser) _parseFrame() *model.FrameDSLModel {
 	frame := &model.FrameDSLModel{
 		Type:      "FRAME",
-		Variables: []model.VariableDSLModel{},
-		Blocks:    []model.BlockDSLModel{},
+		Variables: make([]model.VariableDSLModel, 0, 0),
+		Blocks:    make([]model.BlockDSLModel, 0, 0),
 	}
 
 	if !p._expectPeek(lexer.TOKEN_LPAREN) {
@@ -427,11 +517,23 @@ func (p *Parser) _parseFrame() *model.FrameDSLModel {
 				varDecl := p._parseVariable()
 				if varDecl != nil {
 					frame.Variables = append(frame.Variables, *varDecl)
+					// Enforce that len == cap for frame.Variables
+					if cap(frame.Variables) != len(frame.Variables) {
+						tmp := make([]model.VariableDSLModel, len(frame.Variables))
+						copy(tmp, frame.Variables)
+						frame.Variables = tmp
+					}
 				}
 			} else if p._curTokenIs(lexer.TOKEN_KEYWORD) && p.curToken.Literal == "block" {
 				block := p._parseBlock()
 				if block != nil {
 					frame.Blocks = append(frame.Blocks, *block)
+					// Enforce that len == cap for frame.Blocks
+					if cap(frame.Blocks) != len(frame.Blocks) {
+						tmp := make([]model.BlockDSLModel, len(frame.Blocks))
+						copy(tmp, frame.Blocks)
+						frame.Blocks = tmp
+					}
 				}
 			}
 			p._nextToken()
@@ -469,11 +571,11 @@ func (p *Parser) _parseVariable() *model.VariableDSLModel {
 
 func (p *Parser) _parseBlock() *model.BlockDSLModel {
 	block := &model.BlockDSLModel{
-		Data:       []model.BlockDataDSLModel{},
-		Properties: []model.BlockPropertyDSLModel{},
-		Slots:      []model.BlockSlotDSLModel{},
-		Blocks:     []model.BlockDSLModel{},
-		Actions:    []model.ActionDSLModel{},
+		Data:       make([]model.BlockDataDSLModel, 0, 0),
+		Properties: make([]model.BlockPropertyDSLModel, 0, 0),
+		Slots:      make([]model.BlockSlotDSLModel, 0, 0),
+		Blocks:     make([]model.BlockDSLModel, 0, 0),
+		Actions:    make([]model.ActionDSLModel, 0, 0),
 	}
 
 	if !p._expectPeek(lexer.TOKEN_LPAREN) {
@@ -497,13 +599,32 @@ func (p *Parser) _parseBlock() *model.BlockDSLModel {
 			case "data":
 				dataItems := p._parseBlockData()
 				block.Data = append(block.Data, dataItems...)
+				// Enforce that len == cap for block.Data
+				if cap(block.Data) != len(block.Data) {
+					tmp := make([]model.BlockDataDSLModel, len(block.Data))
+					copy(tmp, block.Data)
+					block.Data = tmp
+				}
 			case "prop":
 				propItems := p._parseBlockProperty()
 				block.Properties = append(block.Properties, propItems...)
+				// Enforce that len == cap for block.Properties
+				if cap(block.Properties) != len(block.Properties) {
+					tmp := make([]model.BlockPropertyDSLModel, len(block.Properties))
+					copy(tmp, block.Properties)
+					block.Properties = tmp
+				}
 			case "slot":
 				p._parseSlot(block)
 			case "action":
-				block.Actions = append(block.Actions, p._parseAction())
+				action := p._parseAction()
+				block.Actions = append(block.Actions, action)
+				// Enforce that len == cap for block.Actions
+				if cap(block.Actions) != len(block.Actions) {
+					tmp := make([]model.ActionDSLModel, len(block.Actions))
+					copy(tmp, block.Actions)
+					block.Actions = tmp
+				}
 			}
 		}
 	}
@@ -512,7 +633,7 @@ func (p *Parser) _parseBlock() *model.BlockDSLModel {
 
 func (p *Parser) _parseAction() model.ActionDSLModel {
 	action := model.ActionDSLModel{
-		Triggers: []model.ActionTriggerDSLModel{},
+		Triggers: make([]model.ActionTriggerDSLModel, 0, 0),
 	}
 
 	if !p._expectPeek(lexer.TOKEN_LPAREN) {
@@ -534,6 +655,12 @@ func (p *Parser) _parseAction() model.ActionDSLModel {
 			trigger := p._parseTriggerWithContext("NEXT")
 			if trigger != nil {
 				action.Triggers = append(action.Triggers, *trigger)
+				// Enforce that len == cap for action.Triggers
+				if cap(action.Triggers) != len(action.Triggers) {
+					tmp := make([]model.ActionTriggerDSLModel, len(action.Triggers))
+					copy(tmp, action.Triggers)
+					action.Triggers = tmp
+				}
 			}
 		}
 		p._nextToken()
@@ -543,9 +670,9 @@ func (p *Parser) _parseAction() model.ActionDSLModel {
 
 func (p *Parser) _parseTriggerWithContext(defaultThen string) *model.ActionTriggerDSLModel {
 	trigger := &model.ActionTriggerDSLModel{
-		Properties: []model.TriggerPropertyDSLModel{},
-		Data:       []model.TriggerDataDSLModel{},
-		Triggers:   []model.ActionTriggerDSLModel{},
+		Properties: make([]model.TriggerPropertyDSLModel, 0, 0),
+		Data:       make([]model.TriggerDataDSLModel, 0, 0),
+		Triggers:   make([]model.ActionTriggerDSLModel, 0, 0),
 		Then:       defaultThen,
 	}
 
@@ -579,9 +706,21 @@ func (p *Parser) _parseTriggerWithContext(defaultThen string) *model.ActionTrigg
 			case "data":
 				dataItems := p._parseTriggerData()
 				trigger.Data = append(trigger.Data, dataItems...)
+				// Enforce that len == cap for trigger.Data
+				if cap(trigger.Data) != len(trigger.Data) {
+					tmp := make([]model.TriggerDataDSLModel, len(trigger.Data))
+					copy(tmp, trigger.Data)
+					trigger.Data = tmp
+				}
 			case "prop":
 				propItems := p._parseTriggerProperty()
 				trigger.Properties = append(trigger.Properties, propItems...)
+				// Enforce that len == cap for trigger.Properties
+				if cap(trigger.Properties) != len(trigger.Properties) {
+					tmp := make([]model.TriggerPropertyDSLModel, len(trigger.Properties))
+					copy(tmp, trigger.Properties)
+					trigger.Properties = tmp
+				}
 			case "then":
 				p._parseThen(trigger)
 			}

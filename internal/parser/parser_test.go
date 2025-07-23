@@ -348,14 +348,16 @@ frame(
         block(keyType = "nativeblocks/column", key = "mainColumn", visibility = visible, version = 1)
         .prop(
             horizontalAlignment = (mobile = "centerHorizontally", tablet = "centerHorizontally", desktop = "centerHorizontally"),
-            width = (mobile = "match", tablet = "match", desktop = "match"),
-            height = (mobile = "match", tablet = "match", desktop = "match")
+            width = (mobile = "wrap", tablet = "match", desktop = "match"),
+            height = match
         )
         .slot("content") {
-            block(keyType = "nativeblocks/column", key = "nativeblocksColumn", VISIBILITY = visible, version = 1)
-            .prop(horizontalAlignment = (mobile = "centerHorizontally", tablet = "centerHorizontally", desktop = "centerHorizontally"))
-            .prop(paddingTop = (mobile = "64", tablet = "64", desktop = "64"))
-            .prop(weight = (mobile = "0.4f", tablet = "0.4f", desktop = "0.4f"))
+            block(keyType = "nativeblocks/column", key = "nativeblocksColumn", visibility = visible, version = 1)
+            .prop(
+				horizontalAlignment = (value = "centerHorizontally"),
+				paddingTop = "64",
+				weight = "0.4f",
+			)
             .prop(verticalArrangement = (mobile = "spaceAround", tablet = "spaceAround", desktop = "spaceAround"))
             .slot("content") {
                 block(keyType = "nativeblocks/image", key = "logo", visibility = visible, version = 1)

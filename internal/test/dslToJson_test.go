@@ -247,7 +247,7 @@ frame(
         .prop(width = (valueMobile = "match", valueTablet = "match", valueDesktop = "match"))
         .prop(height = (valueMobile = "match", valueTablet = "match", valueDesktop = "match"))
         .slot("content") {
-            block(keyType = "nativeblocks/column", key = "nativeblocksColumn", VISIBILITY = visible, version = 1)
+            block(keyType = "nativeblocks/column", key = "nativeblocksColumn", visibility = visible, version = 1)
             .prop(horizontalAlignment = (valueMobile = "centerHorizontally", valueTablet = "centerHorizontally", valueDesktop = "centerHorizontally"))
             .prop(paddingTop = (valueMobile = "64", valueTablet = "64", valueDesktop = "64"))
             .prop(weight = (valueMobile = "0.4f", valueTablet = "0.4f", valueDesktop = "0.4f"))
