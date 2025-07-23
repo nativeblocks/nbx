@@ -13,28 +13,54 @@ frame(
     block(keyType = "ROOT", key = "root", visibility = visible)
     .slot("content") {
         block(keyType = "nativeblocks/column", key = "mainColumn", visibility = visible, version = 1)
-        .prop(horizontalAlignment = "centerHorizontally", width = "match", height = "match")
+        .prop(
+            horizontalAlignment = "centerHorizontally",
+            width = "match",
+            height = "match"
+        )
         .slot("content") {
-
-            block(keyType = "nativeblocks/column", key = "nativeblocksColumn", VISIBILITY = visible, version = 1)
-            .prop(horizontalAlignment = "centerHorizontally", paddingTop = "64", weight = "0.4f", verticalArrangement = "spaceAround")
+            block(keyType = "nativeblocks/column", key = "nativeblocksColumn", visibility = visible, version = 1)
+            .prop(
+                horizontalAlignment = "centerHorizontally",
+                paddingTop = "64",
+                weight = "0.4f",
+                verticalArrangement = "spaceAround"
+            )
             .slot("content") {
-
                 block(keyType = "nativeblocks/image", key = "logo", visibility = visible, version = 1)
-                .prop(scaleType = "inside", width = "128", height = "128")
+                .prop(
+                    scaleType = "inside",
+                    width = "128",
+                    height = "128"
+                )
                 .data(imageUrl = logo)
 
                 block(keyType = "nativeblocks/text", key = "welcome", visibility = visible, version = 1)
-                .prop(fontSize = "24", textAlign = "center", width = "wrap")
+                .prop(
+                    fontSize = "24",
+                    textAlign = "center",
+                    width = "wrap"
+                )
                 .data(text = welcome)
             }
-
             block(keyType = "nativeblocks/row", key = "buttonsRow", visibility = visible, version = 1)
-            .prop(horizontalArrangement = "spaceAround", verticalAlignment = "centerVertically", paddingTop = "12", weight = "0.6f")
+            .prop(
+                horizontalArrangement = "spaceAround",
+                verticalAlignment = "centerVertically",
+                paddingTop = "12",
+                weight = "0.6f"
+            )
             .slot("content") {
-
                 block(keyType = "nativeblocks/button", key = "decreaseButton", visibility = visible, version = 1)
-                .prop(backgroundColor = "#2563EB", borderColor = "#2563EB", radiusTopStart = "32", radiusTopEnd = "32", radiusBottomStart = "32", radiusBottomEnd = "32", fontSize = "20")
+                .prop(
+                    backgroundColor = "#2563EB",
+                    borderColor = "#2563EB",
+                    radiusTopStart = "32",
+                    radiusTopEnd = "32",
+                    radiusBottomStart = "32",
+                    radiusBottomEnd = "32",
+                    fontSize = "20"
+                )
                 .data(text = decreaseButton, enable = enable)
                 .action(event = "onClick") {
                     trigger(keyType = "nativeblocks/change_variable", name = "decrease", version = 1)
@@ -50,13 +76,23 @@ frame(
                     #ENDSCRIPT")
                     .data(variableKey = count)
                 }
-
                 block(keyType = "nativeblocks/text", key = "countText", visibility = visible, version = 1)
-                .prop(fontSize = "18", textAlign = "center", width = "128")
+                .prop(
+                    fontSize = "18",
+                    textAlign = "center",
+                    width = "128"
+                )
                 .data(text = count)
-
                 block(keyType = "nativeblocks/button", key = "increaseButton", visibility = visible, version = 1)
-                .prop(backgroundColor = "#2563EB", borderColor = "#2563EB", radiusTopStart = "32", radiusTopEnd = "32", radiusBottomStart = "32", radiusBottomEnd = "32", fontSize = "20")
+                .prop(
+                    backgroundColor = "#2563EB",
+                    borderColor = "#2563EB",
+                    radiusTopStart = "32",
+                    radiusTopEnd = "32",
+                    radiusBottomStart = "32",
+                    radiusBottomEnd = "32",
+                    fontSize = "20"
+                )
                 .data(text = increaseButton, enable = enable)
                 .action(event = "onClick") {
                     trigger(keyType = "nativeblocks/change_variable", name = "increase", version = 1)

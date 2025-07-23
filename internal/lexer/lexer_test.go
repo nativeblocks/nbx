@@ -19,20 +19,26 @@ frame(
         block(keyType = "column", key = "main", visibility = visible)
         .slot("content") {
             block(keyType = "input", key = "username", visibility = visible)
-            .data(text = username)
+            .assignData(text = username)
             block(keyType = "input", key = "password", visibility = visible)
-            .prop(color = (mobile = "NONE", tablet = "NONE", desktop = "NONE"))
-            .data(text = password)
+            .prop(
+                color = (mobile = "NONE", valueTablet = "NONE", valueDesktop = "NONE")
+            )
+            .assignData(text = password)
             .action(event = "onTextChange") {
                 trigger(keyType = "validate", name = "validate password")
                 .then("FAILURE") {
                     trigger(keyType = "show_error", name = "show error 1")
                     trigger(keyType = "change_color", name = "change color to red")
-                    .prop(color = "RED")
+                    .prop(
+                        color = "RED"
+                    )
                 }
                 .then("SUCCESS") {
                     trigger(keyType = "show_ok", name = "show ok")
-                    .prop(color = "GREEN")
+                    .prop(
+                        color = "GREEN"
+                    )
                 }
             }
         }    
@@ -76,17 +82,154 @@ frame(
         block(keyType = "nativeblocks/column", key = "main", visibility = visible)
         .slot("content") {
             block(keyType = "nativeblocks/text_field", key = "username", visibility = visible)
+            .assignData(text = username)
+            block(keyType = "nativeblocks/text_field", key = "password", visibility = visible)
+            .prop(
+                textColor = (mobile = "NONE", valueTablet = "NONE", valueDesktop = "NONE")
+            )
+            .assignData(text = password)
+            .action(event = "onTextChange") {
+                trigger(keyType = "nativeblocks/change_block_property", name = "show error")
+                .prop(
+                    propertyKey = "textColor"
+                )
+                .prop(
+                    propertyValueDesktop = "RED"
+                )
+				trigger(keyType = "nativeblocks/change_block_property", name = "show success")
+				.prop(
+                    propertyKey = "textColor"
+                )
+				.prop(
+                    propertyValueDesktop = "GREEN"
+                )
+            }
+        }
+    }
+}
+`
+
+	l := NewLexer(input)
+	seen := 0
+
+	for {
+		tok := l.NextToken()
+		if tok.Type == TOKEN_EOF {
+			break
+		}
+
+		if tok.Type == TOKEN_ILLEGAL {
+			t.Fatalf("Unexpected illegal token: %v at line %d, col %d", tok.Literal, tok.Line, tok.Column)
+		}
+
+		seen++
+	}
+
+	if seen < 50 {
+		t.Fatalf("Expected many tokens, but only got %d", seen)
+	}
+}
+
+func TestLexerKeyword_ComplexInput(t *testing.T) {
+
+	input := `
+frame(
+    name = "login",
+    route = "/login",
+) {
+    var visible: BOOLEAN = true
+    var username: STRING = ""
+    var password: STRING = ""
+
+    block(keyType = "ROOT", key = "root", visibility = visible)
+    .slot("content") {
+        block(keyType = "column", key = "main", visibility = visible)
+        .slot("content") {
+            block(keyType = "input", key = "username", visibility = visible)
+            .data(text = username)
+            block(keyType = "input", key = "password", visibility = visible)
+            .prop(
+                color = (mobile = "NONE", tablet = "NONE", desktop = "NONE")
+            )
+            .data(text = password)
+            .action(event = "onTextChange") {
+                trigger(keyType = "validate", name = "validate password")
+                .then("FAILURE") {
+                    trigger(keyType = "show_error", name = "show error 1")
+                    trigger(keyType = "change_color", name = "change color to red")
+                    .prop(
+                        color = "RED"
+                    )
+                }
+                .then("SUCCESS") {
+                    trigger(keyType = "show_ok", name = "show ok")
+                    .prop(
+                        color = "GREEN"
+                    )
+                }
+            }
+        }    
+    }   
+}
+`
+
+	l := NewLexer(input)
+	seen := 0
+
+	for {
+		tok := l.NextToken()
+		if tok.Type == TOKEN_EOF {
+			break
+		}
+
+		if tok.Type == TOKEN_ILLEGAL {
+			t.Fatalf("Unexpected illegal token: %v at line %d, col %d", tok.Literal, tok.Line, tok.Column)
+		}
+
+		seen++
+	}
+
+	if seen < 50 {
+		t.Fatalf("Expected many tokens, but only got %d", seen)
+	}
+}
+
+func TestLexerKeyword_ComplexInput2(t *testing.T) {
+	input := `
+frame(
+    name = "login",
+    route = "/login",
+) {
+    var visible: BOOLEAN = true
+    var username: STRING = ""
+    var password: STRING = ""
+
+    block(keyType = "ROOT", key = "root", visibility = visible)
+    .slot("content") {
+        block(keyType = "nativeblocks/column", key = "main", visibility = visible)
+        .slot("content") {
+            block(keyType = "nativeblocks/text_field", key = "username", visibility = visible)
             .data(text = username)
             block(keyType = "nativeblocks/text_field", key = "password", visibility = visible)
-            .prop(textColor = (mobile = "NONE", tablet = "NONE", desktop = "NONE"))
+            .prop(
+                textColor = (mobile = "NONE", tablet = "NONE", desktop = "NONE")
+            )
             .data(text = password)
             .action(event = "onTextChange") {
                 trigger(keyType = "nativeblocks/change_block_property", name = "show error")
-                .prop(propertyKey = "textColor")
-                .prop(propertydesktop = "RED")
+                .prop(
+                    propertyKey = "textColor"
+                )
+                .prop(
+                    propertydesktop = "RED"
+                )
 				trigger(keyType = "nativeblocks/change_block_property", name = "show success")
-				.prop(propertyKey = "textColor")
-				.prop(propertydesktop = "GREEN")
+				.prop(
+                    propertyKey = "textColor"
+                )
+				.prop(
+                    propertydesktop = "GREEN"
+                )
             }
         }
     }

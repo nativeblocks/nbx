@@ -2,6 +2,7 @@ frame(
     name = "welcome",
     route = "/welcome"
 ) {
+    // Variables
     var visible: BOOLEAN = true
     var enable: BOOLEAN = true
     var count: INT = 0
@@ -10,40 +11,73 @@ frame(
     var welcomeText: STRING = "Welcome to Nativeblocks"
     var logo: STRING = "https://nativeblocks.io/nativeblocks_logo.png"
 
+    // Root container
     block(keyType = "ROOT", key = "root", visibility = visible)
     .slot("content") {
-
+        // Outer VStack
         block(keyType = "nativeblocks/vstack", key = "outerVStack", visibility = visible, version = 1)
-        .prop(width = fill, height = fill)
+        .prop(
+            width = "fill",
+            height = "fill"
+        )
         .slot("content") {
-
             block(keyType = "nativeblocks/spacer", key = "spacer1", visibility = visible, version = 1)
 
+            // Logo & Welcome text VStack
             block(keyType = "nativeblocks/vstack", key = "logoVStack", visibility = visible, version = 1)
-            .prop(spacing = "16", alignmentHorizontal = "center")
+            .prop(
+                spacing = "16",
+                alignmentHorizontal = "center"
+            )
             .slot("content") {
 
+                // Logo image
                 block(keyType = "nativeblocks/image", key = "logoImage", visibility = visible, version = 1)
-                .prop(width = "128", height = "128", contentMode = "fit")
-                .data(imageUrl = logo)
+                .prop(
+                    width = "128",
+                    height = "128",
+                    contentMode = "fit"
+                )
+                .assignData(imageUrl = logo)
 
+                // Welcome text
                 block(keyType = "nativeblocks/text", key = "welcomeText", visibility = visible, version = 1)
-                .prop(fontSize = "24", multilineTextAlignment = "center", width = "fill")
-                .data(text = welcomeText)
+                .prop(
+                    fontSize = "24",
+                    multilineTextAlignment = "center",
+                    width = "fill"
+                )
+                .assignData(text = welcomeText)
             }
 
+            // Controls HStack
             block(keyType = "nativeblocks/hstack", key = "controlsHStack", visibility = visible, version = 1)
-            .prop(spacing = "16", width = "fill", alignmentHorizontal = "center")
+            .prop(
+                spacing = "16",
+                width = "fill",
+                alignmentHorizontal = "center"
+            )
             .slot("content") {
-
                 block(keyType = "nativeblocks/spacer", key = "spacer_control_1", visibility = visible, version = 1)
 
+                // Decrease button
                 block(keyType = "nativeblocks/button", key = "decreaseBtn", visibility = visible, version = 1)
-                .prop(width = "56", height = "40", backgroundColor = "#2563EB", radiusTopStart = "32", radiusTopEnd = "32", radiusBottomStart = "32", radiusBottomEnd = "32", fontSize = "20")
-                .data(text = decreaseButton, enable = enable)
+                .prop(
+                    width = "56",
+                    height = "40",
+                    backgroundColor = "#2563EB",
+                    radiusTopStart = "32",
+                    radiusTopEnd = "32",
+                    radiusBottomStart = "32",
+                    radiusBottomEnd = "32",
+                    fontSize = "20"
+                )
+                .assignData(text = decreaseButton)
+                .assignData(enable = enable)
                 .action(event = "onClick") {
                     trigger(keyType = "nativeblocks/change_variable", name = "decrease", version = 1)
-                    .prop(variableValue = "#SCRIPT
+                    .prop(
+                        variableValue = "#SCRIPT
                     const count = {var:count}
                     let result = count
                     if (count >= 1) {
@@ -52,29 +86,52 @@ frame(
                         result = count
                     }
                     result
-                    #ENDSCRIPT")
-                    .data(variableKey = count)
+                    #ENDSCRIPT"
+                    )
+                    .assignData(variableKey = count)
                 }
 
+                // Counter text
                 block(keyType = "nativeblocks/text", key = "counterText", visibility = visible, version = 1)
-                .prop(fontSize = "18", width = "128", height = "40", multilineTextAlignment = "center")
-                .data(text = count)
+                .prop(
+                    fontSize = "18",
+                    width = "128",
+                    height = "40",
+                    multilineTextAlignment = "center"
+                )
+                .assignData(text = count)
 
+                // Increase button
                 block(keyType = "nativeblocks/button", key = "increaseBtn", visibility = visible, version = 1)
-                .prop(width = "56", height = "40", backgroundColor = "#2563EB", radiusTopStart = "32", radiusTopEnd = "32", radiusBottomStart = "32", radiusBottomEnd = "32", fontSize = "20")
-                .data(text = increaseButton, enable = enable)
+                .prop(
+                    width = "56",
+                    height = "40",
+                    backgroundColor = "#2563EB",
+                    radiusTopStart = "32",
+                    radiusTopEnd = "32",
+                    radiusBottomStart = "32",
+                    radiusBottomEnd = "32",
+                    fontSize = "20"
+                )
+                .assignData(text = increaseButton)
+                .assignData(enable = enable)
                 .action(event = "onClick") {
                     trigger(keyType = "nativeblocks/change_variable", name = "increase", version = 1)
-                    .prop(variableValue = "#SCRIPT
+                    .prop(
+                        variableValue = "#SCRIPT
                     const count = {var:count}
                     const result = count + 1
                     result
-                    #ENDSCRIPT")
-                    .data(variableKey = count)
+                    #ENDSCRIPT"
+                    )
+                    .assignData(variableKey = count)
                 }
                 block(keyType = "nativeblocks/spacer", key = "spacer_control_2", visibility = visible, version = 1)
             }
-            .prop(paddingTop = "12", paddingBottom = "32")
+            .prop(
+                paddingTop = "12",
+                paddingBottom = "32"
+            )
 
             block(keyType = "nativeblocks/spacer", key = "spacer2", visibility = visible, version = 1)
         }

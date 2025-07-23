@@ -1,27 +1,26 @@
 # NBX
 
-A Go library for parsing and converting the NBX DSL (Domain-Specific Language) for describing UI frames, variables, blocks, and actions into structured JSON, and vice versa.
+A Go library to parse and convert the Nativeblocks eXchange (NBX) Domain-Specific Language (DSL) for describing UI frames, variables, blocks, slots, actions, and triggers to structured JSON, and vice versa.
 
-## What is this?
+## What is NBX?
 
-This project lets you describe UI screens and their logic in a readable text format (DSL), and then turn that into JSON for use in other systems. You can also go the other way: take JSON and turn it back into the DSL.
+NBX lets you define UI screens, layouts, and their logic in a human-readable DSL text format, which can be converted to JSON for further processing (codegen, cross-platform, rendering). Conversion is bidirectional: NBX DSL ⇄ JSON.
 
 ---
 
 ## Concepts
 
-- **Frame**: The top-level container. Think of it as a screen or page.
-- **Variable**: A named value you can use in your frame (like a flag or a field value).
-- **Block**: A UI element (like a button, input, or container). Blocks can be nested.
-- **Slot**: A named area inside a block where you can put other blocks.
-- **Action**: Something that happens in response to an event (like a button click).
-- **Trigger**: A function execution on a specific events (NEXT, END, FAILURE, SUCCESS).
-
+- **Frame**: The root structure representing a UI screen or component.
+- **Variable**: Named data available in the frame (flags, form fields, intermediate data).
+- **Block**: UI element such as containers, buttons, inputs, images, etc. Blocks can be nested.
+- **Slot**: Named regions in a block to inject other blocks (“children” into layouts).
+- **Action**: Response logic to UI events (e.g., onClick, onChange). Belongs to a Block.
+- **Trigger**: The invocation of an effect (function) in response to an event inside an Action, Triggers can conditionally run more triggers via `.then("NEXT") { ... }` blocks, for handling success, failure, or custom logic.
 ---
 
 ## Example
 
-Here's an example of the DSL:
+Example NBX DSL describing a login UI with logic:
 
 ```
 frame(
@@ -53,54 +52,76 @@ frame(
                     .prop(color = "GREEN")
                 }
             }
-        }    
-    }   
+        }
+    }
 }
 ```
+---
+
+## Syntax Overview
+
+- **Frame Declaration**  
+  ```
+  frame(name = "screenName", route = "/route") { ... }
+  ```
+
+- **Variable Declaration**  
+  ```
+  var variableName: TYPE = value
+  ```
+
+- **Block Declaration**  
+  ```
+  block(keyType = "TYPE", key = "name", visibility = someVariable, version = 1)
+  ```
+
+- **Slot Injection**  
+  ```
+  .slot("slotName") { ... }
+  ```
+
+- **Data Assignment**  
+  ```
+  .data(key = value)
+  ```
+  
+- **Property Assignment (single or multi-device)**  
+  ```
+  .prop(
+      property1 = value1,
+      property2 = value2
+  )
+  // or
+  .prop(
+      property1 = (mobile = "NONE", tablet = "NONE", desktop = "NONE"),
+      property2 = (mobile = "NONE", tablet = "NONE", desktop = "NONE")
+  )
+  // or
+  .prop(
+      property1 = (value = "NONE"),
+      property2 = (value = "NONE")
+  )
+  ```
+
+- **Event Action**  
+  ```
+  .action(event = "eventName") { ... }
+  ```
+  (Multiple triggers can be handled inside.)
+
+- **Trigger**  
+  ```
+  trigger(keyType = "TYPE", name = "description")
+  .then("NEXT") { ... }
+  ```
 
 ---
 
-## Syntax
+## Usage
 
-- **Frame**:  
-  `frame(name = "screenName", route = "/route") { ... }`
+Use the root `nbx` package. All implementation details are in `internal/` (not for import).
 
-- **Variable**:  
-  `var variableName: TYPE = value`
-
-- **Block**:  
-  `block(keyType = "TYPE", key = "name", visibility = variable)`
-
-- **Slot**:  
-  `.slot("slotName") { ... }`
-
-- **Data/Property**:  
-  `.data(key = value)`  
-  `.prop(key = value, key2 = value2)`  
-  You can assign for different devices:  
-  `.prop(color = (mobile = "NONE", tablet = "NONE", desktop = "NONE"))`
-
-- **Action**:  
-  `.action(event = "eventName") { ... }`
-
-- **Trigger**:  
-  `trigger(keyType = "TYPE", name = "a function name or description of what this function does")`  
-  Triggers can have `.then("NEXT") { ... }` blocks for branching.
-
-- **Assign Data/Property**:  
-  `.assignData(key = value)`
-  `.assignProperty(key = value)`
-
----
-
-## How to Use
-
-### Public API
-
-You should only use the root `nbx` package. All implementation details are hidden in `internal/` and cannot be imported directly.
-
-
-#### Convert JSON to DSL struct
+### Convert JSON to NBX DSL
 
 ```go
 import "github.com/nativeblocks/nbx"
@@ -108,7 +129,7 @@ import "github.com/nativeblocks/nbx"
 frameDSL := nbx.ToDSL(frameJson)
 ```
 
-#### Convert DSL struct to JSON
+### Convert NBX DSL to JSON
 
 ```go
 import "github.com/nativeblocks/nbx"
