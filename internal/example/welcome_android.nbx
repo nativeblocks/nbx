@@ -13,42 +13,54 @@ frame(
     block(keyType = "ROOT", key = "root", visibility = visible)
     .slot("content") {
         block(keyType = "nativeblocks/column", key = "mainColumn", visibility = visible, version = 1)
-        .prop(horizontalAlignment = (value = "centerHorizontally"), width = (value = "match"), height = (value = "match"))
+        .prop(
+            horizontalAlignment = "centerHorizontally",
+            width = "match",
+            height = "match"
+        )
         .slot("content") {
             block(keyType = "nativeblocks/column", key = "nativeblocksColumn", visibility = visible, version = 1)
             .prop(
-                horizontalAlignment = (mobile = "centerHorizontally", tablet = "centerHorizontally", desktop = "centerHorizontally"),
-                paddingTop = (mobile = "64", tablet = "64", desktop = "64"),
-                weight = (mobile = "0.4f", tablet = "0.4f", desktop = "0.4f"),
-                verticalArrangement = (mobile = "spaceAround", tablet = "spaceAround", desktop = "spaceAround")
+                horizontalAlignment = "centerHorizontally",
+                paddingTop = "64",
+                weight = "0.4f",
+                verticalArrangement = "spaceAround"
             )
             .slot("content") {
                 block(keyType = "nativeblocks/image", key = "logo", visibility = visible, version = 1)
-                .prop(scaleType = (mobile = "inside", tablet = "inside", desktop = "inside"))
-                .prop(width = (mobile = "128", tablet = "128", desktop = "128"))
-                .prop(height = (mobile = "128", tablet = "128", desktop = "128"))
+                .prop(
+                    scaleType = "inside",
+                    width = "128",
+                    height = "128"
+                )
                 .data(imageUrl = logo)
 
                 block(keyType = "nativeblocks/text", key = "welcome", visibility = visible, version = 1)
-                .prop(fontSize = (mobile = "24", tablet = "24", desktop = "24"))
-                .prop(textAlign = (mobile = "center", tablet = "center", desktop = "center"))
-                .prop(width = (mobile = "wrap", tablet = "wrap", desktop = "wrap"))
+                .prop(
+                    fontSize = "24",
+                    textAlign = "center",
+                    width = "wrap"
+                )
                 .data(text = welcome)
             }
             block(keyType = "nativeblocks/row", key = "buttonsRow", visibility = visible, version = 1)
-            .prop(horizontalArrangement = (mobile = "spaceAround", tablet = "spaceAround", desktop = "spaceAround"))
-            .prop(verticalAlignment = (mobile = "centerVertically", tablet = "centerVertically", desktop = "centerVertically"))
-            .prop(paddingTop = (mobile = "12", tablet = "12", desktop = "12"))
-            .prop(weight = (mobile = "0.6f", tablet = "0.6f", desktop = "0.6f"))
+            .prop(
+                horizontalArrangement = "spaceAround",
+                verticalAlignment = "centerVertically",
+                paddingTop = "12",
+                weight = "0.6f"
+            )
             .slot("content") {
                 block(keyType = "nativeblocks/button", key = "decreaseButton", visibility = visible, version = 1)
-                .prop(backgroundColor = (mobile = "#2563EB", tablet = "#2563EB", desktop = "#2563EB"))
-                .prop(borderColor = (mobile = "#2563EB", tablet = "#2563EB", desktop = "#2563EB"))
-                .prop(radiusTopStart = (mobile = "32", tablet = "32", desktop = "32"))
-                .prop(radiusTopEnd = (mobile = "32", tablet = "32", desktop = "32"))
-                .prop(radiusBottomStart = (mobile = "32", tablet = "32", desktop = "32"))
-                .prop(radiusBottomEnd = (mobile = "32", tablet = "32", desktop = "32"))
-                .prop(fontSize = (mobile = "20", tablet = "20", desktop = "20"))
+                .prop(
+                    backgroundColor = "#2563EB",
+                    borderColor = "#2563EB",
+                    radiusTopStart = "32",
+                    radiusTopEnd = "32",
+                    radiusBottomStart = "32",
+                    radiusBottomEnd = "32",
+                    fontSize = "20"
+                )
                 .data(text = decreaseButton, enable = enable)
                 .action(event = "onClick") {
                     trigger(keyType = "nativeblocks/change_variable", name = "decrease", version = 1)
@@ -65,18 +77,22 @@ frame(
                     .data(variableKey = count)
                 }
                 block(keyType = "nativeblocks/text", key = "countText", visibility = visible, version = 1)
-                .prop(fontSize = (mobile = "18", tablet = "18", desktop = "18"))
-                .prop(textAlign = (mobile = "center", tablet = "center", desktop = "center"))
-                .prop(width = (mobile = "128", tablet = "128", desktop = "128"))
+                .prop(
+                    fontSize = "18",
+                    textAlign = "center",
+                    width = "128"
+                )
                 .data(text = count)
                 block(keyType = "nativeblocks/button", key = "increaseButton", visibility = visible, version = 1)
-                .prop(backgroundColor = (mobile = "#2563EB", tablet = "#2563EB", desktop = "#2563EB"))
-                .prop(borderColor = (mobile = "#2563EB", tablet = "#2563EB", desktop = "#2563EB"))
-                .prop(radiusTopStart = (mobile = "32", tablet = "32", desktop = "32"))
-                .prop(radiusTopEnd = (mobile = "32", tablet = "32", desktop = "32"))
-                .prop(radiusBottomStart = (mobile = "32", tablet = "32", desktop = "32"))
-                .prop(radiusBottomEnd = (mobile = "32", tablet = "32", desktop = "32"))
-                .prop(fontSize = (mobile = "20", tablet = "20", desktop = "20"))
+                .prop(
+                    backgroundColor = "#2563EB",
+                    borderColor = "#2563EB",
+                    radiusTopStart = "32",
+                    radiusTopEnd = "32",
+                    radiusBottomStart = "32",
+                    radiusBottomEnd = "32",
+                    fontSize = "20"
+                )
                 .data(text = increaseButton, enable = enable)
                 .action(event = "onClick") {
                     trigger(keyType = "nativeblocks/change_variable", name = "increase", version = 1)
