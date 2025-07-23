@@ -205,72 +205,13 @@ func (p *Parser) _parseBlock() *model.BlockDSLModel {
 		p._nextToken()
 		if p._expectPeek(lexer.TOKEN_KEYWORD) {
 			switch p.curToken.Literal {
-			case "assignData":
-				p._expectPeek(lexer.TOKEN_LPAREN)
-				p._expectPeek(lexer.TOKEN_IDENT)
-				key := p.curToken.Literal
-				p._expectPeek(lexer.TOKEN_ASSIGN)
-				p._nextToken()
-				val := p.curToken.Literal
-				block.Data = append(block.Data, model.BlockDataDSLModel{Key: key, Value: val, Type: "PLACE_HOLDER"})
+			case "data":
+				block.Data = append(block.Data, p._parseBlockData())
 				p._expectPeek(lexer.TOKEN_RPAREN)
-			case "assignProperty":
-				p._expectPeek(lexer.TOKEN_LPAREN)
-				p._expectPeek(lexer.TOKEN_IDENT)
-				key := p.curToken.Literal
-				p._expectPeek(lexer.TOKEN_ASSIGN)
-				p._expectPeek(lexer.TOKEN_LPAREN)
-
-				// Parse property values for different device types
-				var valueMobile, valueTablet, valueDesktop string
-				for !p._curTokenIs(lexer.TOKEN_RPAREN) && !p._curTokenIs(lexer.TOKEN_EOF) {
-					p._nextToken()
-					propKey := p.curToken.Literal
-					p._expectPeek(lexer.TOKEN_ASSIGN)
-					p._nextToken()
-					propValue := p.curToken.Literal
-
-					switch propKey {
-					case "valueMobile":
-						valueMobile = propValue
-					case "valueTablet":
-						valueTablet = propValue
-					case "valueDesktop":
-						valueDesktop = propValue
-					case "value":
-						valueMobile = propValue
-						valueTablet = propValue
-						valueDesktop = propValue
-					}
-
-					if p._peekTokenIs(lexer.TOKEN_COMMA) {
-						p._nextToken()
-					} else {
-						break
-					}
-				}
-
-				p._expectPeek(lexer.TOKEN_RPAREN)
-				p._expectPeek(lexer.TOKEN_RPAREN)
-
-				block.Properties = append(block.Properties, model.BlockPropertyDSLModel{
-					Key:          key,
-					ValueMobile:  valueMobile,
-					ValueTablet:  valueTablet,
-					ValueDesktop: valueDesktop,
-					Type:         "PLACE_HOLDER",
-				})
-
+			case "prop":
+				block.Properties = append(block.Properties, p._parseBlockProperty())
 			case "slot":
-				p._expectPeek(lexer.TOKEN_LPAREN)
-				p._expectPeek(lexer.TOKEN_STRING)
-				slotName := p.curToken.Literal
-				p._expectPeek(lexer.TOKEN_RPAREN)
-				p._expectPeek(lexer.TOKEN_LBRACE)
-				p._nextToken() // Move to first token inside the slot
-
-				// Create a slot
-				slot := model.BlockSlotDSLModel{Slot: slotName}
+				slot := p._parseBlockSlot()
 				block.Slots = append(block.Slots, slot)
 
 				// Parse child blocks in the slot
@@ -278,7 +219,7 @@ func (p *Parser) _parseBlock() *model.BlockDSLModel {
 					if p._curTokenIs(lexer.TOKEN_KEYWORD) && p.curToken.Literal == "block" {
 						child := p._parseBlock()
 						if child != nil {
-							child.Slot = slotName
+							child.Slot = slot.Slot
 							block.Blocks = append(block.Blocks, *child)
 						}
 					}
@@ -362,29 +303,13 @@ func (p *Parser) _parseTriggerWithContext(defaultThen string) *model.ActionTrigg
 		p._nextToken()
 		if p._expectPeek(lexer.TOKEN_KEYWORD) {
 			switch p.curToken.Literal {
-			case "assignData":
-				p._expectPeek(lexer.TOKEN_LPAREN)
-				p._expectPeek(lexer.TOKEN_IDENT)
-				key := p.curToken.Literal
-				p._expectPeek(lexer.TOKEN_ASSIGN)
-				p._nextToken()
-				val := p.curToken.Literal
-				trigger.Data = append(trigger.Data, model.TriggerDataDSLModel{Key: key, Value: val, Type: "STRING"})
+			case "data":
+				trigger.Data = append(trigger.Data, p._parseTriggerData())
 				p._expectPeek(lexer.TOKEN_RPAREN)
 
-			case "assignProperty":
-				p._expectPeek(lexer.TOKEN_LPAREN)
-				p._expectPeek(lexer.TOKEN_IDENT)
-				key := p.curToken.Literal
-				p._expectPeek(lexer.TOKEN_ASSIGN)
-				p._expectPeek(lexer.TOKEN_LPAREN)
-				p._expectPeek(lexer.TOKEN_IDENT)
-				p._expectPeek(lexer.TOKEN_ASSIGN)
-				p._nextToken()
-				val := p.curToken.Literal
-				p._expectPeek(lexer.TOKEN_RPAREN)
-				p._expectPeek(lexer.TOKEN_RPAREN)
-				trigger.Properties = append(trigger.Properties, model.TriggerPropertyDSLModel{Key: key, Value: val, Type: "STRING"})
+			case "prop":
+				property := p._parseTriggerProperty()
+				trigger.Properties = append(trigger.Properties, property)
 
 			case "then":
 				p._expectPeek(lexer.TOKEN_LPAREN)
@@ -408,4 +333,109 @@ func (p *Parser) _parseTriggerWithContext(defaultThen string) *model.ActionTrigg
 		}
 	}
 	return trigger
+}
+
+func (p *Parser) _parseBlockProperty() model.BlockPropertyDSLModel {
+	p._expectPeek(lexer.TOKEN_LPAREN)
+	p._expectPeek(lexer.TOKEN_IDENT)
+	key := p.curToken.Literal
+	p._expectPeek(lexer.TOKEN_ASSIGN)
+	p._expectPeek(lexer.TOKEN_LPAREN)
+
+	// Parse property values for different device types
+	var valueMobile, valueTablet, valueDesktop string
+	for !p._curTokenIs(lexer.TOKEN_RPAREN) && !p._curTokenIs(lexer.TOKEN_EOF) {
+		p._nextToken()
+		propKey := p.curToken.Literal
+		p._expectPeek(lexer.TOKEN_ASSIGN)
+		p._nextToken()
+		propValue := p.curToken.Literal
+
+		switch propKey {
+		case "mobile":
+			valueMobile = propValue
+		case "tablet":
+			valueTablet = propValue
+		case "desktop":
+			valueDesktop = propValue
+		case "value":
+			valueMobile = propValue
+			valueTablet = propValue
+			valueDesktop = propValue
+		}
+
+		if p._peekTokenIs(lexer.TOKEN_COMMA) {
+			p._nextToken()
+		} else {
+			break
+		}
+	}
+
+	p._expectPeek(lexer.TOKEN_RPAREN)
+	p._expectPeek(lexer.TOKEN_RPAREN)
+	return model.BlockPropertyDSLModel{
+		Key:          key,
+		ValueMobile:  valueMobile,
+		ValueTablet:  valueTablet,
+		ValueDesktop: valueDesktop,
+		Type:         "PLACEHOLDER",
+	}
+}
+
+func (p *Parser) _parseBlockData() model.BlockDataDSLModel {
+	p._expectPeek(lexer.TOKEN_LPAREN)
+	p._expectPeek(lexer.TOKEN_IDENT)
+	key := p.curToken.Literal
+	p._expectPeek(lexer.TOKEN_ASSIGN)
+	p._nextToken()
+	val := p.curToken.Literal
+	return model.BlockDataDSLModel{
+		Key:   key,
+		Value: val,
+		Type:  "PLACEHOLDER",
+	}
+}
+
+func (p *Parser) _parseBlockSlot() model.BlockSlotDSLModel {
+	p._expectPeek(lexer.TOKEN_LPAREN)
+	p._expectPeek(lexer.TOKEN_STRING)
+	slotName := p.curToken.Literal
+	p._expectPeek(lexer.TOKEN_RPAREN)
+	p._expectPeek(lexer.TOKEN_LBRACE)
+	p._nextToken() // Move to first token inside the slot
+
+	return model.BlockSlotDSLModel{Slot: slotName}
+}
+
+func (p *Parser) _parseTriggerProperty() model.TriggerPropertyDSLModel {
+	p._expectPeek(lexer.TOKEN_LPAREN)
+	p._expectPeek(lexer.TOKEN_IDENT)
+	key := p.curToken.Literal
+	p._expectPeek(lexer.TOKEN_ASSIGN)
+	p._expectPeek(lexer.TOKEN_LPAREN)
+	p._expectPeek(lexer.TOKEN_IDENT)
+	p._expectPeek(lexer.TOKEN_ASSIGN)
+	p._nextToken()
+	val := p.curToken.Literal
+	p._expectPeek(lexer.TOKEN_RPAREN)
+	p._expectPeek(lexer.TOKEN_RPAREN)
+	return model.TriggerPropertyDSLModel{
+		Key:   key,
+		Value: val,
+		Type:  "PLACEHOLDER",
+	}
+}
+
+func (p *Parser) _parseTriggerData() model.TriggerDataDSLModel {
+	p._expectPeek(lexer.TOKEN_LPAREN)
+	p._expectPeek(lexer.TOKEN_IDENT)
+	key := p.curToken.Literal
+	p._expectPeek(lexer.TOKEN_ASSIGN)
+	p._nextToken()
+	val := p.curToken.Literal
+	return model.TriggerDataDSLModel{
+		Key:   key,
+		Value: val,
+		Type:  "PLACEHOLDER",
+	}
 }

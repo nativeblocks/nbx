@@ -111,20 +111,20 @@ frame(
         block(keyType = "COLUMN", key = "main", visibility = visible)
         .slot("content") {
             block(keyType = "INPUT", key = "username", visibility = visible)
-            .assignData(text = username)
+            .data(text = username)
             block(keyType = "INPUT", key = "password", visibility = visible)
-            .assignProperty(color = (valueMobile = "NONE", valueTablet = "NONE", valueDesktop = "NONE"))
-            .assignData(text = password)
+            .prop(color = (valueMobile = "NONE", valueTablet = "NONE", valueDesktop = "NONE"))
+            .data(text = password)
             .action(event = "onTextChange") {
                 trigger(keyType = "VALIDATE", name = "validate password")
                 .then("FAILURE") {
                     trigger(keyType = "SHOW_ERROR", name = "show error 1")
                     trigger(keyType = "CHANGE_COLOR", name = "change color to red")
-                    .assignProperty(color = "RED")
+                    .prop(color = "RED")
                 }
                 .then("SUCCESS") {
                     trigger(keyType = "SHOW_OK", name = "show ok")
-                    .assignProperty(color = "GREEN")
+                    .prop(color = "GREEN")
                 }
             }
         }    
@@ -168,17 +168,17 @@ frame(
         block(keyType = "nativeblocks/COLUMN", key = "main", visibility = visible)
         .slot("content") {
             block(keyType = "nativeblocks/TEXT_FIELD", key = "username", visibility = visible)
-            .assignData(text = username)
+            .data(text = username)
             block(keyType = "nativeblocks/TEXT_FIELD", key = "password", visibility = visible)
-            .assignProperty(textColor = (valueMobile = "NONE", valueTablet = "NONE", valueDesktop = "NONE"))
-            .assignData(text = password)
+            .prop(textColor = (valueMobile = "NONE", valueTablet = "NONE", valueDesktop = "NONE"))
+            .data(text = password)
             .action(event = "onTextChange") {
                 trigger(keyType = "nativeblocks/CHANGE_BLOCK_PROPERTY", name = "show error")
-                .assignProperty(propertyKey = "textColor")
-                .assignProperty(propertyValueDesktop = "RED")
+                .prop(propertyKey = "textColor")
+                .prop(propertyValueDesktop = "RED")
 				trigger(keyType = "nativeblocks/CHANGE_BLOCK_PROPERTY", name = "show success")
-				.assignProperty(propertyKey = "textColor")
-				.assignProperty(propertyValueDesktop = "GREEN")
+				.prop(propertyKey = "textColor")
+				.prop(propertyValueDesktop = "GREEN")
             }
         }
     }
@@ -218,7 +218,7 @@ frame(
         block(keyType = "COLUMN", key = "main", visibility = visible)
         .slot("content") {
             block(keyType = "INPUT", key = "username", visibility = visible)
-            .assignData(text = username)
+            .data(text = username)
         }
     }
 }`
@@ -252,12 +252,12 @@ frame(
     route = "/login"
 ) {
     block(keyType = "INPUT", key = "password", visibility = visible)
-    .assignData(text = password)
+    .data(text = password)
     .action(event = "onTextChange") {
         trigger(keyType = "VALIDATE", name = "validate password")
         .then("SUCCESS") {
             trigger(keyType = "SHOW_OK", name = "show ok")
-            .assignProperty(color = "GREEN")
+            .prop(color = "GREEN")
         }
     }
 }`
@@ -319,5 +319,102 @@ frame(
 	}
 	if frame.Variables[2].Key != "password" || frame.Variables[2].Type != "STRING" || frame.Variables[2].Value != "" {
 		t.Errorf("Unexpected variable: %+v", frame.Variables[2])
+	}
+}
+
+func TestParser_ComplexFrame(t *testing.T) {
+	input := `
+frame(
+    name = "welcome",
+    route = "/welcome"
+) {
+    var visible: BOOLEAN = true
+    var enable: BOOLEAN = true
+    var count: INT = 0
+    var increaseButton: STRING = "+"
+    var decreaseButton: STRING = "-"
+    var welcome: STRING = "Welcome to Nativeblocks"
+    var logo: STRING = "https://nativeblocks.io/nativeblocks_logo.png"
+
+    block(keyType = "ROOT", key = "root", visibility = visible)
+    .slot("content") {
+        block(keyType = "nativeblocks/column", key = "mainColumn", visibility = visible, version = 1)
+        .prop(horizontalAlignment = "centerHorizontally", width = "match", height = "match")
+        .slot("content") {
+
+            block(keyType = "nativeblocks/column", key = "nativeblocksColumn", VISIBILITY = visible, version = 1)
+            .prop(horizontalAlignment = "centerHorizontally", paddingTop = "64", weight = "0.4f", verticalArrangement = "spaceAround")
+            .slot("content") {
+
+                block(keyType = "nativeblocks/image", key = "logo", visibility = visible, version = 1)
+                .prop(scaleType = "inside", width = "128", height = "128")
+                .data(imageUrl = logo)
+
+                block(keyType = "nativeblocks/text", key = "welcome", visibility = visible, version = 1)
+                .prop(fontSize = "24", textAlign = "center", width = "wrap")
+                .data(text = welcome)
+            }
+
+            block(keyType = "nativeblocks/row", key = "buttonsRow", visibility = visible, version = 1)
+            .prop(horizontalArrangement = "spaceAround", verticalAlignment = "centerVertically", paddingTop = "12", weight = "0.6f")
+            .slot("content") {
+
+                block(keyType = "nativeblocks/button", key = "decreaseButton", visibility = visible, version = 1)
+                .prop(backgroundColor = "#2563EB", borderColor = "#2563EB", radiusTopStart = "32", radiusTopEnd = "32", radiusBottomStart = "32", radiusBottomEnd = "32", fontSize = "20")
+                .data(text = decreaseButton, enable = enable)
+                .action(event = "onClick") {
+                    trigger(keyType = "nativeblocks/change_variable", name = "decrease", version = 1)
+                    .prop(variableValue = "#SCRIPT
+                    const count = {var:count}
+                    let result = count
+                    if (count >= 1) {
+                        result = count - 1
+                    } else {
+                        result = count
+                    }
+                    result
+                    #ENDSCRIPT")
+                    .data(variableKey = count)
+                }
+
+                block(keyType = "nativeblocks/text", key = "countText", visibility = visible, version = 1)
+                .prop(fontSize = "18", textAlign = "center", width = "128")
+                .data(text = count)
+
+                block(keyType = "nativeblocks/button", key = "increaseButton", visibility = visible, version = 1)
+                .prop(backgroundColor = "#2563EB", borderColor = "#2563EB", radiusTopStart = "32", radiusTopEnd = "32", radiusBottomStart = "32", radiusBottomEnd = "32", fontSize = "20")
+                .data(text = increaseButton, enable = enable)
+                .action(event = "onClick") {
+                    trigger(keyType = "nativeblocks/change_variable", name = "increase", version = 1)
+                    .prop(variableValue = "#SCRIPT
+                    const count = {var:count}
+                    const result = count + 1
+                    result
+                    #ENDSCRIPT")
+                    .data(variableKey = count)
+                }
+            }
+        }
+    }
+}`
+
+	l := lexer.NewLexer(input)
+	p := NewParser(l)
+	frame := p.ParseNBX()
+
+	if frame == nil {
+		t.Fatalf("Expected frame to be parsed, got nil: %v", p.Errors())
+	}
+	if frame.Name != "welcome" {
+		t.Errorf("Expected name to be 'welcome', got %s", frame.Name)
+	}
+	if frame.Route != "/welcome" {
+		t.Errorf("Expected route to be '/login', got %s", frame.Route)
+	}
+	if len(frame.Variables) != 7 {
+		t.Errorf("Expected 3 variables, got %d", len(frame.Variables))
+	}
+	if len(frame.Blocks) == 0 {
+		t.Fatalf("Expected at least 1 block, got 0")
 	}
 }

@@ -1,0 +1,82 @@
+frame(
+    name = "welcome",
+    route = "/welcome"
+) {
+    var visible: BOOLEAN = true
+    var enable: BOOLEAN = true
+    var count: INT = 0
+    var decreaseButton: STRING = "-"
+    var increaseButton: STRING = "+"
+    var welcomeText: STRING = "Welcome to Nativeblocks"
+    var logo: STRING = "https://nativeblocks.io/nativeblocks_logo.png"
+
+    block(keyType = "ROOT", key = "root", visibility = visible)
+    .slot("content") {
+
+        block(keyType = "nativeblocks/vstack", key = "outerVStack", visibility = visible, version = 1)
+        .prop(width = fill, height = fill)
+        .slot("content") {
+
+            block(keyType = "nativeblocks/spacer", key = "spacer1", visibility = visible, version = 1)
+
+            block(keyType = "nativeblocks/vstack", key = "logoVStack", visibility = visible, version = 1)
+            .prop(spacing = "16", alignmentHorizontal = "center")
+            .slot("content") {
+
+                block(keyType = "nativeblocks/image", key = "logoImage", visibility = visible, version = 1)
+                .prop(width = "128", height = "128", contentMode = "fit")
+                .data(imageUrl = logo)
+
+                block(keyType = "nativeblocks/text", key = "welcomeText", visibility = visible, version = 1)
+                .prop(fontSize = "24", multilineTextAlignment = "center", width = "fill")
+                .data(text = welcomeText)
+            }
+
+            block(keyType = "nativeblocks/hstack", key = "controlsHStack", visibility = visible, version = 1)
+            .prop(spacing = "16", width = "fill", alignmentHorizontal = "center")
+            .slot("content") {
+
+                block(keyType = "nativeblocks/spacer", key = "spacer_control_1", visibility = visible, version = 1)
+
+                block(keyType = "nativeblocks/button", key = "decreaseBtn", visibility = visible, version = 1)
+                .prop(width = "56", height = "40", backgroundColor = "#2563EB", radiusTopStart = "32", radiusTopEnd = "32", radiusBottomStart = "32", radiusBottomEnd = "32", fontSize = "20")
+                .data(text = decreaseButton, enable = enable)
+                .action(event = "onClick") {
+                    trigger(keyType = "nativeblocks/change_variable", name = "decrease", version = 1)
+                    .prop(variableValue = "#SCRIPT
+                    const count = {var:count}
+                    let result = count
+                    if (count >= 1) {
+                        result = count - 1
+                    } else {
+                        result = count
+                    }
+                    result
+                    #ENDSCRIPT")
+                    .data(variableKey = count)
+                }
+
+                block(keyType = "nativeblocks/text", key = "counterText", visibility = visible, version = 1)
+                .prop(fontSize = "18", width = "128", height = "40", multilineTextAlignment = "center")
+                .data(text = count)
+
+                block(keyType = "nativeblocks/button", key = "increaseBtn", visibility = visible, version = 1)
+                .prop(width = "56", height = "40", backgroundColor = "#2563EB", radiusTopStart = "32", radiusTopEnd = "32", radiusBottomStart = "32", radiusBottomEnd = "32", fontSize = "20")
+                .data(text = increaseButton, enable = enable)
+                .action(event = "onClick") {
+                    trigger(keyType = "nativeblocks/change_variable", name = "increase", version = 1)
+                    .prop(variableValue = "#SCRIPT
+                    const count = {var:count}
+                    const result = count + 1
+                    result
+                    #ENDSCRIPT")
+                    .data(variableKey = count)
+                }
+                block(keyType = "nativeblocks/spacer", key = "spacer_control_2", visibility = visible, version = 1)
+            }
+            .prop(paddingTop = "12", paddingBottom = "32")
+
+            block(keyType = "nativeblocks/spacer", key = "spacer2", visibility = visible, version = 1)
+        }
+    }
+}
