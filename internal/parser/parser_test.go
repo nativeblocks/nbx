@@ -14,7 +14,7 @@ frame(
 
 	l := lexer.NewLexer(input)
 	p := NewParser(l)
-	frame := p.ParseSDUI()
+	frame := p.ParseNBX()
 
 	if frame == nil {
 		t.Fatalf("Expected frame to be parsed, got nil: %v", p.Errors())
@@ -43,7 +43,7 @@ frame(
 `
 	l := lexer.NewLexer(input)
 	p := NewParser(l)
-	frame := p.ParseSDUI()
+	frame := p.ParseNBX()
 
 	if len(frame.Variables) != 3 {
 		t.Fatalf("Expected 3 variables, got %d", len(frame.Variables))
@@ -76,7 +76,7 @@ frame(
 `
 	l := lexer.NewLexer(input)
 	p := NewParser(l)
-	frame := p.ParseSDUI()
+	frame := p.ParseNBX()
 
 	if len(frame.Blocks) != 1 {
 		t.Fatalf("Expected 1 block, got %d", len(frame.Blocks))
@@ -133,7 +133,7 @@ frame(
 
 	l := lexer.NewLexer(input)
 	p := NewParser(l)
-	frame := p.ParseSDUI()
+	frame := p.ParseNBX()
 
 	if frame == nil {
 		t.Fatalf("Expected frame to be parsed, got nil: %v", p.Errors())
@@ -187,7 +187,7 @@ frame(
 
 	l := lexer.NewLexer(input)
 	p := NewParser(l)
-	frame := p.ParseSDUI()
+	frame := p.ParseNBX()
 
 	if frame == nil {
 		t.Fatalf("Expected frame to be parsed, got nil: %v", p.Errors())
@@ -224,7 +224,7 @@ frame(
 }`
 	l := lexer.NewLexer(input)
 	p := NewParser(l)
-	frame := p.ParseSDUI()
+	frame := p.ParseNBX()
 
 	if frame == nil {
 		t.Fatalf("Expected frame to be parsed, got nil: %v", p.Errors())
@@ -263,7 +263,7 @@ frame(
 }`
 	l := lexer.NewLexer(input)
 	p := NewParser(l)
-	frame := p.ParseSDUI()
+	frame := p.ParseNBX()
 
 	if frame == nil {
 		t.Fatalf("Expected frame to be parsed, got nil: %v", p.Errors())
@@ -303,7 +303,7 @@ frame(
 }`
 	l := lexer.NewLexer(input)
 	p := NewParser(l)
-	frame := p.ParseSDUI()
+	frame := p.ParseNBX()
 
 	if frame == nil {
 		t.Fatalf("Expected frame to be parsed, got nil: %v", p.Errors())

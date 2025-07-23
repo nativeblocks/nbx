@@ -44,11 +44,65 @@ type Lexer struct {
 
 func NewLexer(input string) *Lexer {
 	l := &Lexer{input: input, line: 1}
-	l.readChar()
+	l._readChar()
 	return l
 }
 
-func (l *Lexer) readChar() {
+func (l *Lexer) NextToken() Token {
+	l._skipWhitespace()
+
+	// Skip comments
+	if l.ch == '/' && l._peekChar() == '/' {
+		l._skipComment()
+		return l.NextToken()
+	}
+
+	switch l.ch {
+	case '=':
+		return l._newToken(TOKEN_ASSIGN, string(l.ch))
+	case ':':
+		return l._newToken(TOKEN_COLON, string(l.ch))
+	case ',':
+		return l._newToken(TOKEN_COMMA, string(l.ch))
+	case '.':
+		return l._newToken(TOKEN_DOT, string(l.ch))
+	case '(':
+		return l._newToken(TOKEN_LPAREN, string(l.ch))
+	case ')':
+		return l._newToken(TOKEN_RPAREN, string(l.ch))
+	case '{':
+		return l._newToken(TOKEN_LBRACE, string(l.ch))
+	case '}':
+		return l._newToken(TOKEN_RBRACE, string(l.ch))
+	case '"':
+		return l._readString()
+	case 0:
+		return l._newToken(TOKEN_EOF, "")
+	default:
+		if _isLetter(l.ch) {
+			literal := l._readIdentifier()
+			tokenType := _lookupKeyword(literal)
+			return Token{
+				Type:    tokenType,
+				Literal: literal,
+				Line:    l.line,
+				Column:  l.column,
+			}
+		} else if _isDigit(l.ch) || l.ch == '.' {
+			return l._readNumber()
+		}
+		tok := Token{
+			Type:    TOKEN_ILLEGAL,
+			Literal: string(l.ch),
+			Line:    l.line,
+			Column:  l.column,
+		}
+		l._readChar()
+		return tok
+	}
+}
+
+func (l *Lexer) _readChar() {
 	if l.readPosition >= len(l.input) {
 		l.ch = 0
 	} else {
@@ -64,112 +118,58 @@ func (l *Lexer) readChar() {
 	l.readPosition++
 }
 
-func (l *Lexer) NextToken() Token {
-	l.skipWhitespace()
-
-	// Skip comments
-	if l.ch == '/' && l.peekChar() == '/' {
-		l.skipComment()
-		return l.NextToken()
-	}
-
-	switch l.ch {
-	case '=':
-		return l.newToken(TOKEN_ASSIGN, string(l.ch))
-	case ':':
-		return l.newToken(TOKEN_COLON, string(l.ch))
-	case ',':
-		return l.newToken(TOKEN_COMMA, string(l.ch))
-	case '.':
-		return l.newToken(TOKEN_DOT, string(l.ch))
-	case '(':
-		return l.newToken(TOKEN_LPAREN, string(l.ch))
-	case ')':
-		return l.newToken(TOKEN_RPAREN, string(l.ch))
-	case '{':
-		return l.newToken(TOKEN_LBRACE, string(l.ch))
-	case '}':
-		return l.newToken(TOKEN_RBRACE, string(l.ch))
-	case '"':
-		return l.readString()
-	case 0:
-		return l.newToken(TOKEN_EOF, "")
-	default:
-		if isLetter(l.ch) {
-			literal := l.readIdentifier()
-			tokenType := lookupKeyword(literal)
-			return Token{
-				Type:    tokenType,
-				Literal: literal,
-				Line:    l.line,
-				Column:  l.column,
-			}
-		} else if isDigit(l.ch) || l.ch == '.' {
-			return l.readNumber()
-		}
-		tok := Token{
-			Type:    TOKEN_ILLEGAL,
-			Literal: string(l.ch),
-			Line:    l.line,
-			Column:  l.column,
-		}
-		l.readChar()
-		return tok
-	}
-}
-
-func (l *Lexer) peekChar() byte {
+func (l *Lexer) _peekChar() byte {
 	if l.readPosition >= len(l.input) {
 		return 0
 	}
 	return l.input[l.readPosition]
 }
 
-func (l *Lexer) skipComment() {
+func (l *Lexer) _skipComment() {
 	// Skip the '//' characters
-	l.readChar()
-	l.readChar()
+	l._readChar()
+	l._readChar()
 
 	// Continue reading until the end of line or EOF
 	for l.ch != '\n' && l.ch != 0 {
-		l.readChar()
+		l._readChar()
 	}
 }
 
-func (l *Lexer) newToken(tokenType TokenType, ch string) Token {
+func (l *Lexer) _newToken(tokenType TokenType, ch string) Token {
 	tok := Token{
 		Type:    tokenType,
 		Literal: ch,
 		Line:    l.line,
 		Column:  l.column,
 	}
-	l.readChar()
+	l._readChar()
 	return tok
 }
 
-func (l *Lexer) skipWhitespace() {
+func (l *Lexer) _skipWhitespace() {
 	for l.ch == ' ' || l.ch == '\t' || l.ch == '\n' || l.ch == '\r' {
-		l.readChar()
+		l._readChar()
 	}
 }
 
-func (l *Lexer) readIdentifier() string {
+func (l *Lexer) _readIdentifier() string {
 	start := l.position
-	for isLetter(l.ch) || isDigit(l.ch) || l.ch == '_' {
-		l.readChar()
+	for _isLetter(l.ch) || _isDigit(l.ch) || l.ch == '_' {
+		l._readChar()
 	}
 	return l.input[start:l.position]
 }
 
-func (l *Lexer) readString() Token {
+func (l *Lexer) _readString() Token {
 	startLine, startCol := l.line, l.column
-	l.readChar() // skip initial quote
+	l._readChar() // skip initial quote
 	start := l.position
 	for l.ch != '"' && l.ch != 0 {
-		l.readChar()
+		l._readChar()
 	}
 	literal := l.input[start:l.position]
-	l.readChar() // skip closing quote
+	l._readChar() // skip closing quote
 	return Token{
 		Type:    TOKEN_STRING,
 		Literal: literal,
@@ -178,16 +178,16 @@ func (l *Lexer) readString() Token {
 	}
 }
 
-func (l *Lexer) readNumber() Token {
+func (l *Lexer) _readNumber() Token {
 	startLine, startCol := l.line, l.column
 	start := l.position
 	seenDot := false
 
-	for isDigit(l.ch) || (!seenDot && l.ch == '.') {
+	for _isDigit(l.ch) || (!seenDot && l.ch == '.') {
 		if l.ch == '.' {
 			seenDot = true
 		}
-		l.readChar()
+		l._readChar()
 	}
 
 	literal := l.input[start:l.position]
@@ -226,7 +226,7 @@ func (l *Lexer) readNumber() Token {
 	}
 }
 
-func lookupKeyword(lit string) TokenType {
+func _lookupKeyword(lit string) TokenType {
 	switch lit {
 	case "frame", "var", "slot", "trigger", "prop", "action", "block", "then", "props", "data":
 		return TOKEN_KEYWORD
@@ -237,10 +237,10 @@ func lookupKeyword(lit string) TokenType {
 	}
 }
 
-func isLetter(ch byte) bool {
+func _isLetter(ch byte) bool {
 	return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || ch == '_'
 }
 
-func isDigit(ch byte) bool {
+func _isDigit(ch byte) bool {
 	return ch >= '0' && ch <= '9'
 }

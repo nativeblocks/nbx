@@ -50,7 +50,7 @@ func ToJSON(frameDSL FrameDSLModel, schema string, frameID string) (FrameJson, e
 func Parse(stringifyDsl string) (FrameDSLModel, error) {
 	l := lexer.NewLexer(stringifyDsl)
 	p := parser.NewParser(l)
-	frame := p.ParseSDUI()
+	frame := p.ParseNBX()
 	if frame == nil {
 		return FrameDSLModel{}, errors.New(strings.Join(p.Errors(), "; "))
 	}
