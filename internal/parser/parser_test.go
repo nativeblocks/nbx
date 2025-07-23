@@ -10,7 +10,9 @@ func TestParser_FrameOnly(t *testing.T) {
 frame(
     name = "login",
     route = "/login"
-)`
+) {
+	block(keyType = "ROOT", key = "root")
+}`
 
 	l := lexer.NewLexer(input)
 	p := NewParser(l)
@@ -27,7 +29,6 @@ frame(
 	if frame.Route != "/login" {
 		t.Errorf("Expected route to be '/login', got %s", frame.Route)
 	}
-
 }
 
 func TestParser_FrameWithVariables(t *testing.T) {
@@ -39,11 +40,16 @@ frame(
 	var visible: BOOLEAN = true
 	var username: STRING = ""
 	var password: STRING = ""
+	block(keyType = "ROOT", key = "root")
 }
 `
 	l := lexer.NewLexer(input)
 	p := NewParser(l)
 	frame := p.ParseNBX()
+
+	if frame == nil {
+		t.Fatalf("Expected frame to be parsed, got nil: %v", p.Errors())
+	}
 
 	if len(frame.Variables) != 3 {
 		t.Fatalf("Expected 3 variables, got %d", len(frame.Variables))
@@ -113,7 +119,7 @@ frame(
             block(keyType = "INPUT", key = "username", visibility = visible)
             .data(text = username)
             block(keyType = "INPUT", key = "password", visibility = visible)
-            .prop(color = (valueMobile = "NONE", valueTablet = "NONE", valueDesktop = "NONE"))
+            .prop(color = (mobile = "NONE", valueTablet = "NONE", valueDesktop = "NONE"))
             .data(text = password)
             .action(event = "onTextChange") {
                 trigger(keyType = "VALIDATE", name = "validate password")
@@ -170,7 +176,7 @@ frame(
             block(keyType = "nativeblocks/TEXT_FIELD", key = "username", visibility = visible)
             .data(text = username)
             block(keyType = "nativeblocks/TEXT_FIELD", key = "password", visibility = visible)
-            .prop(textColor = (valueMobile = "NONE", valueTablet = "NONE", valueDesktop = "NONE"))
+            .prop(textColor = (mobile = "NONE", valueTablet = "NONE", valueDesktop = "NONE"))
             .data(text = password)
             .action(event = "onTextChange") {
                 trigger(keyType = "nativeblocks/CHANGE_BLOCK_PROPERTY", name = "show error")
@@ -300,6 +306,7 @@ frame(
     var visible: BOOLEAN = true
     var username: STRING = ""
     var password: STRING = ""
+    block(keyType = "ROOT", key = "root")
 }`
 	l := lexer.NewLexer(input)
 	p := NewParser(l)
@@ -339,28 +346,44 @@ frame(
     block(keyType = "ROOT", key = "root", visibility = visible)
     .slot("content") {
         block(keyType = "nativeblocks/column", key = "mainColumn", visibility = visible, version = 1)
-        .prop(horizontalAlignment = "centerHorizontally", width = "match", height = "match")
+        .prop(
+            horizontalAlignment = (mobile = "centerHorizontally", tablet = "centerHorizontally", desktop = "centerHorizontally"),
+            width = (mobile = "match", tablet = "match", desktop = "match"),
+            height = (mobile = "match", tablet = "match", desktop = "match")
+        )
         .slot("content") {
-
             block(keyType = "nativeblocks/column", key = "nativeblocksColumn", VISIBILITY = visible, version = 1)
-            .prop(horizontalAlignment = "centerHorizontally", paddingTop = "64", weight = "0.4f", verticalArrangement = "spaceAround")
+            .prop(horizontalAlignment = (mobile = "centerHorizontally", tablet = "centerHorizontally", desktop = "centerHorizontally"))
+            .prop(paddingTop = (mobile = "64", tablet = "64", desktop = "64"))
+            .prop(weight = (mobile = "0.4f", tablet = "0.4f", desktop = "0.4f"))
+            .prop(verticalArrangement = (mobile = "spaceAround", tablet = "spaceAround", desktop = "spaceAround"))
             .slot("content") {
-
                 block(keyType = "nativeblocks/image", key = "logo", visibility = visible, version = 1)
-                .prop(scaleType = "inside", width = "128", height = "128")
+                .prop(scaleType = (mobile = "inside", tablet = "inside", desktop = "inside"))
+                .prop(width = (mobile = "128", tablet = "128", desktop = "128"))
+                .prop(height = (mobile = "128", tablet = "128", desktop = "128"))
                 .data(imageUrl = logo)
 
                 block(keyType = "nativeblocks/text", key = "welcome", visibility = visible, version = 1)
-                .prop(fontSize = "24", textAlign = "center", width = "wrap")
+                .prop(fontSize = (mobile = "24", tablet = "24", desktop = "24"))
+                .prop(textAlign = (mobile = "center", tablet = "center", desktop = "center"))
+                .prop(width = (mobile = "wrap", tablet = "wrap", desktop = "wrap"))
                 .data(text = welcome)
             }
-
             block(keyType = "nativeblocks/row", key = "buttonsRow", visibility = visible, version = 1)
-            .prop(horizontalArrangement = "spaceAround", verticalAlignment = "centerVertically", paddingTop = "12", weight = "0.6f")
+            .prop(horizontalArrangement = (mobile = "spaceAround", tablet = "spaceAround", desktop = "spaceAround"))
+            .prop(verticalAlignment = (mobile = "centerVertically", tablet = "centerVertically", desktop = "centerVertically"))
+            .prop(paddingTop = (mobile = "12", tablet = "12", desktop = "12"))
+            .prop(weight = (mobile = "0.6f", tablet = "0.6f", desktop = "0.6f"))
             .slot("content") {
-
                 block(keyType = "nativeblocks/button", key = "decreaseButton", visibility = visible, version = 1)
-                .prop(backgroundColor = "#2563EB", borderColor = "#2563EB", radiusTopStart = "32", radiusTopEnd = "32", radiusBottomStart = "32", radiusBottomEnd = "32", fontSize = "20")
+                .prop(backgroundColor = (mobile = "#2563EB", tablet = "#2563EB", desktop = "#2563EB"))
+                .prop(borderColor = (mobile = "#2563EB", tablet = "#2563EB", desktop = "#2563EB"))
+                .prop(radiusTopStart = (mobile = "32", tablet = "32", desktop = "32"))
+                .prop(radiusTopEnd = (mobile = "32", tablet = "32", desktop = "32"))
+                .prop(radiusBottomStart = (mobile = "32", tablet = "32", desktop = "32"))
+                .prop(radiusBottomEnd = (mobile = "32", tablet = "32", desktop = "32"))
+                .prop(fontSize = (mobile = "20", tablet = "20", desktop = "20"))
                 .data(text = decreaseButton, enable = enable)
                 .action(event = "onClick") {
                     trigger(keyType = "nativeblocks/change_variable", name = "decrease", version = 1)
@@ -376,13 +399,19 @@ frame(
                     #ENDSCRIPT")
                     .data(variableKey = count)
                 }
-
                 block(keyType = "nativeblocks/text", key = "countText", visibility = visible, version = 1)
-                .prop(fontSize = "18", textAlign = "center", width = "128")
+                .prop(fontSize = (mobile = "18", tablet = "18", desktop = "18"))
+                .prop(textAlign = (mobile = "center", tablet = "center", desktop = "center"))
+                .prop(width = (mobile = "128", tablet = "128", desktop = "128"))
                 .data(text = count)
-
                 block(keyType = "nativeblocks/button", key = "increaseButton", visibility = visible, version = 1)
-                .prop(backgroundColor = "#2563EB", borderColor = "#2563EB", radiusTopStart = "32", radiusTopEnd = "32", radiusBottomStart = "32", radiusBottomEnd = "32", fontSize = "20")
+                .prop(backgroundColor = (mobile = "#2563EB", tablet = "#2563EB", desktop = "#2563EB"))
+                .prop(borderColor = (mobile = "#2563EB", tablet = "#2563EB", desktop = "#2563EB"))
+                .prop(radiusTopStart = (mobile = "32", tablet = "32", desktop = "32"))
+                .prop(radiusTopEnd = (mobile = "32", tablet = "32", desktop = "32"))
+                .prop(radiusBottomStart = (mobile = "32", tablet = "32", desktop = "32"))
+                .prop(radiusBottomEnd = (mobile = "32", tablet = "32", desktop = "32"))
+                .prop(fontSize = (mobile = "20", tablet = "20", desktop = "20"))
                 .data(text = increaseButton, enable = enable)
                 .action(event = "onClick") {
                     trigger(keyType = "nativeblocks/change_variable", name = "increase", version = 1)
@@ -409,12 +438,12 @@ frame(
 		t.Errorf("Expected name to be 'welcome', got %s", frame.Name)
 	}
 	if frame.Route != "/welcome" {
-		t.Errorf("Expected route to be '/login', got %s", frame.Route)
+		t.Errorf("Expected route to be '/welcome', got %s", frame.Route)
 	}
 	if len(frame.Variables) != 7 {
-		t.Errorf("Expected 3 variables, got %d", len(frame.Variables))
+		t.Errorf("Expected 7 variables, got %d", len(frame.Variables))
 	}
-	if len(frame.Blocks) == 0 {
-		t.Fatalf("Expected at least 1 block, got 0")
+	if len(frame.Blocks) != 1 {
+		t.Fatalf("Expected 1 block, got %d", len(frame.Blocks))
 	}
 }

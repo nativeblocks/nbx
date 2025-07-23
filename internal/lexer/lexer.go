@@ -228,7 +228,7 @@ func (l *Lexer) _readNumber() Token {
 
 func _lookupKeyword(lit string) TokenType {
 	switch lit {
-	case "frame", "var", "slot", "trigger", "data", "prop", "action", "block", "then":
+	case "frame", "var", "slot", "trigger", "action", "block", "then", "data", "prop":
 		return TOKEN_KEYWORD
 	case "true", "false":
 		return TOKEN_BOOLEAN

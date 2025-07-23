@@ -65,6 +65,331 @@ func (p *Parser) _peekTokenIs(t lexer.TokenType) bool {
 	return p.peekToken.Type == t
 }
 
+// _parseKeyValuePairs parses key=value pairs within parentheses
+func (p *Parser) _parseKeyValuePairs() map[string]string {
+	pairs := make(map[string]string)
+
+	for !p._curTokenIs(lexer.TOKEN_RPAREN) && !p._curTokenIs(lexer.TOKEN_EOF) {
+		p._nextToken()
+		if !p._curTokenIs(lexer.TOKEN_IDENT) {
+			p.errors = append(p.errors, "Expected identifier")
+			return pairs
+		}
+		key := p.curToken.Literal
+
+		if !p._expectPeek(lexer.TOKEN_ASSIGN) {
+			return pairs
+		}
+		p._nextToken()
+		pairs[key] = p.curToken.Literal
+
+		if p._peekTokenIs(lexer.TOKEN_COMMA) {
+			p._nextToken()
+		} else if p._peekTokenIs(lexer.TOKEN_RPAREN) {
+			p._nextToken()
+			break
+		}
+	}
+
+	return pairs
+}
+
+// _parseBlockData parses a .data() declaration and returns a list of data items
+func (p *Parser) _parseBlockData() []model.BlockDataDSLModel {
+	var dataList []model.BlockDataDSLModel
+
+	if !p._expectPeek(lexer.TOKEN_LPAREN) {
+		return dataList
+	}
+
+	// Handle empty data()
+	if p._peekTokenIs(lexer.TOKEN_RPAREN) {
+		p._nextToken()
+		return dataList
+	}
+
+	// Parse all key=value pairs
+	for !p._curTokenIs(lexer.TOKEN_RPAREN) && !p._curTokenIs(lexer.TOKEN_EOF) {
+		p._nextToken()
+		if !p._curTokenIs(lexer.TOKEN_IDENT) {
+			p.errors = append(p.errors, "Expected identifier in data declaration")
+			return dataList
+		}
+		key := p.curToken.Literal
+
+		if !p._expectPeek(lexer.TOKEN_ASSIGN) {
+			return dataList
+		}
+		p._nextToken()
+		value := p.curToken.Literal
+
+		dataList = append(dataList, model.BlockDataDSLModel{
+			Key:   key,
+			Value: value,
+			Type:  "PLACEHOLDER",
+		})
+
+		if p._peekTokenIs(lexer.TOKEN_COMMA) {
+			p._nextToken()
+		} else if p._peekTokenIs(lexer.TOKEN_RPAREN) {
+			p._nextToken()
+			break
+		}
+	}
+
+	return dataList
+}
+
+// _parseTriggerData parses a trigger .data() declaration and returns a list of data items
+func (p *Parser) _parseTriggerData() []model.TriggerDataDSLModel {
+	var dataList []model.TriggerDataDSLModel
+
+	if !p._expectPeek(lexer.TOKEN_LPAREN) {
+		return dataList
+	}
+
+	// Handle empty data()
+	if p._peekTokenIs(lexer.TOKEN_RPAREN) {
+		p._nextToken()
+		return dataList
+	}
+
+	// Parse all key=value pairs
+	for !p._curTokenIs(lexer.TOKEN_RPAREN) && !p._curTokenIs(lexer.TOKEN_EOF) {
+		p._nextToken()
+		if !p._curTokenIs(lexer.TOKEN_IDENT) {
+			p.errors = append(p.errors, "Expected identifier in data declaration")
+			return dataList
+		}
+		key := p.curToken.Literal
+
+		if !p._expectPeek(lexer.TOKEN_ASSIGN) {
+			return dataList
+		}
+		p._nextToken()
+		value := p.curToken.Literal
+
+		dataList = append(dataList, model.TriggerDataDSLModel{
+			Key:   key,
+			Value: value,
+			Type:  "PLACEHOLDER",
+		})
+
+		if p._peekTokenIs(lexer.TOKEN_COMMA) {
+			p._nextToken()
+		} else if p._peekTokenIs(lexer.TOKEN_RPAREN) {
+			p._nextToken()
+			break
+		}
+	}
+
+	return dataList
+}
+
+// _parseBlockProperty parses a block .prop() declaration and returns a list of properties
+func (p *Parser) _parseBlockProperty() []model.BlockPropertyDSLModel {
+	var propList []model.BlockPropertyDSLModel
+
+	if !p._expectPeek(lexer.TOKEN_LPAREN) {
+		return propList
+	}
+
+	// Handle empty prop()
+	if p._peekTokenIs(lexer.TOKEN_RPAREN) {
+		p._nextToken()
+		return propList
+	}
+
+	// Parse all property declarations
+	for !p._curTokenIs(lexer.TOKEN_RPAREN) && !p._curTokenIs(lexer.TOKEN_EOF) {
+		p._nextToken()
+		if !p._curTokenIs(lexer.TOKEN_IDENT) {
+			p.errors = append(p.errors, "Expected identifier in prop declaration")
+			return propList
+		}
+		key := p.curToken.Literal
+
+		if !p._expectPeek(lexer.TOKEN_ASSIGN) {
+			return propList
+		}
+
+		if !p._expectPeek(lexer.TOKEN_LPAREN) {
+			return propList
+		}
+
+		// Parse property values
+		var valueMobile, valueTablet, valueDesktop string
+		propValues := p._parseKeyValuePairs()
+
+		// Handle different property value formats
+		if val, ok := propValues["value"]; ok {
+			valueMobile = val
+			valueTablet = val
+			valueDesktop = val
+		}
+		if val, ok := propValues["valueMobile"]; ok {
+			valueMobile = val
+		}
+		if val, ok := propValues["mobile"]; ok {
+			valueMobile = val
+		}
+		if val, ok := propValues["valueTablet"]; ok {
+			valueTablet = val
+		}
+		if val, ok := propValues["tablet"]; ok {
+			valueTablet = val
+		}
+		if val, ok := propValues["valueDesktop"]; ok {
+			valueDesktop = val
+		}
+		if val, ok := propValues["desktop"]; ok {
+			valueDesktop = val
+		}
+
+		propList = append(propList, model.BlockPropertyDSLModel{
+			Key:          key,
+			ValueMobile:  valueMobile,
+			ValueTablet:  valueTablet,
+			ValueDesktop: valueDesktop,
+			Type:         "PLACEHOLDER",
+		})
+
+		if p._peekTokenIs(lexer.TOKEN_COMMA) {
+			p._nextToken()
+		} else if p._peekTokenIs(lexer.TOKEN_RPAREN) {
+			p._nextToken()
+			break
+		}
+	}
+
+	return propList
+}
+
+// _parseTriggerProperty parses a trigger .prop() declaration and returns a list of properties
+func (p *Parser) _parseTriggerProperty() []model.TriggerPropertyDSLModel {
+	var propList []model.TriggerPropertyDSLModel
+
+	if !p._expectPeek(lexer.TOKEN_LPAREN) {
+		return propList
+	}
+
+	// Handle empty prop()
+	if p._peekTokenIs(lexer.TOKEN_RPAREN) {
+		p._nextToken()
+		return propList
+	}
+
+	// Parse all property declarations
+	for !p._curTokenIs(lexer.TOKEN_RPAREN) && !p._curTokenIs(lexer.TOKEN_EOF) {
+		p._nextToken()
+		if !p._curTokenIs(lexer.TOKEN_IDENT) {
+			p.errors = append(p.errors, "Expected identifier in prop declaration")
+			return propList
+		}
+		key := p.curToken.Literal
+
+		if !p._expectPeek(lexer.TOKEN_ASSIGN) {
+			return propList
+		}
+
+		if !p._expectPeek(lexer.TOKEN_LPAREN) {
+			return propList
+		}
+
+		// Parse the nested value
+		if !p._expectPeek(lexer.TOKEN_IDENT) {
+			return propList
+		}
+		if !p._expectPeek(lexer.TOKEN_ASSIGN) {
+			return propList
+		}
+		p._nextToken()
+		value := p.curToken.Literal
+
+		if !p._expectPeek(lexer.TOKEN_RPAREN) {
+			return propList
+		}
+
+		propList = append(propList, model.TriggerPropertyDSLModel{
+			Key:   key,
+			Value: value,
+			Type:  "PLACEHOLDER",
+		})
+
+		if p._peekTokenIs(lexer.TOKEN_COMMA) {
+			p._nextToken()
+		} else if p._peekTokenIs(lexer.TOKEN_RPAREN) {
+			p._nextToken()
+			break
+		}
+	}
+
+	return propList
+}
+
+// _parseSlot parses a .slot() declaration
+func (p *Parser) _parseSlot(block *model.BlockDSLModel) {
+	if !p._expectPeek(lexer.TOKEN_LPAREN) {
+		return
+	}
+	if !p._expectPeek(lexer.TOKEN_STRING) {
+		return
+	}
+	slotName := p.curToken.Literal
+	if !p._expectPeek(lexer.TOKEN_RPAREN) {
+		return
+	}
+	if !p._expectPeek(lexer.TOKEN_LBRACE) {
+		return
+	}
+	p._nextToken() // Move to first token inside the slot
+
+	// Create a slot
+	slot := model.BlockSlotDSLModel{Slot: slotName}
+	block.Slots = append(block.Slots, slot)
+
+	// Parse child blocks in the slot
+	for !p._curTokenIs(lexer.TOKEN_RBRACE) && !p._curTokenIs(lexer.TOKEN_EOF) {
+		if p._curTokenIs(lexer.TOKEN_KEYWORD) && p.curToken.Literal == "block" {
+			child := p._parseBlock()
+			if child != nil {
+				child.Slot = slotName
+				block.Blocks = append(block.Blocks, *child)
+			}
+		}
+		p._nextToken()
+	}
+}
+
+// _parseThen parses a .then() declaration for triggers
+func (p *Parser) _parseThen(trigger *model.ActionTriggerDSLModel) {
+	if !p._expectPeek(lexer.TOKEN_LPAREN) {
+		return
+	}
+	if !p._expectPeek(lexer.TOKEN_STRING) {
+		return
+	}
+	thenValue := p.curToken.Literal
+	if !p._expectPeek(lexer.TOKEN_RPAREN) {
+		return
+	}
+	if !p._expectPeek(lexer.TOKEN_LBRACE) {
+		return
+	}
+	p._nextToken() // Move to first token inside the then block
+
+	// Parse nested triggers inside the then block
+	for !p._curTokenIs(lexer.TOKEN_RBRACE) && !p._curTokenIs(lexer.TOKEN_EOF) {
+		if p._curTokenIs(lexer.TOKEN_KEYWORD) && p.curToken.Literal == "trigger" {
+			nestedTrigger := p._parseTriggerWithContext(thenValue)
+			if nestedTrigger != nil {
+				trigger.Triggers = append(trigger.Triggers, *nestedTrigger)
+			}
+		}
+		p._nextToken()
+	}
+}
+
 func (p *Parser) _parseFrame() *model.FrameDSLModel {
 	frame := &model.FrameDSLModel{
 		Type:      "FRAME",
@@ -76,30 +401,15 @@ func (p *Parser) _parseFrame() *model.FrameDSLModel {
 		return nil
 	}
 
-	for !p._curTokenIs(lexer.TOKEN_RPAREN) {
-		p._nextToken()
-		if !p._curTokenIs(lexer.TOKEN_IDENT) {
-			p.errors = append(p.errors, "Expected identifier in frame header")
-			return nil
-		}
-		key := p.curToken.Literal
-		if !p._expectPeek(lexer.TOKEN_ASSIGN) {
-			return nil
-		}
-		p._nextToken()
-		switch key {
-		case "name":
-			frame.Name = p.curToken.Literal
-		case "route":
-			frame.Route = p.curToken.Literal
-		default:
+	// Parse frame header
+	frameAttrs := p._parseKeyValuePairs()
+	frame.Name = frameAttrs["name"]
+	frame.Route = frameAttrs["route"]
+
+	// Check for unknown fields
+	for key := range frameAttrs {
+		if key != "name" && key != "route" {
 			p.errors = append(p.errors, fmt.Sprintf("Unknown frame field: %s", key))
-		}
-		p._nextToken()
-		if p._curTokenIs(lexer.TOKEN_COMMA) {
-			continue
-		} else if p._curTokenIs(lexer.TOKEN_RPAREN) {
-			break
 		}
 	}
 
@@ -108,6 +418,7 @@ func (p *Parser) _parseFrame() *model.FrameDSLModel {
 		return nil
 	}
 
+	// Parse frame body
 	if p._peekTokenIs(lexer.TOKEN_LBRACE) {
 		p._nextToken()
 		p._nextToken() // Move to first token inside the block
@@ -146,16 +457,8 @@ func (p *Parser) _parseVariable() *model.VariableDSLModel {
 		return nil
 	}
 	p._nextToken()
-	var value string
-	if p._curTokenIs(lexer.TOKEN_BOOLEAN) {
-		value = p.curToken.Literal
-	} else if p._curTokenIs(lexer.TOKEN_STRING) {
-		value = p.curToken.Literal
-	} else if p._curTokenIs(lexer.TOKEN_INT) || p._curTokenIs(lexer.TOKEN_LONG) || p._curTokenIs(lexer.TOKEN_FLOAT) || p._curTokenIs(lexer.TOKEN_DOUBLE) {
-		value = p.curToken.Literal
-	} else {
-		value = p.curToken.Literal
-	}
+
+	value := p.curToken.Literal
 
 	return &model.VariableDSLModel{
 		Key:   key,
@@ -176,55 +479,29 @@ func (p *Parser) _parseBlock() *model.BlockDSLModel {
 	if !p._expectPeek(lexer.TOKEN_LPAREN) {
 		return nil
 	}
-	for !p._curTokenIs(lexer.TOKEN_RPAREN) && !p._curTokenIs(lexer.TOKEN_EOF) {
-		p._nextToken()
-		key := p.curToken.Literal
-		if !p._expectPeek(lexer.TOKEN_ASSIGN) {
-			return nil
-		}
-		p._nextToken()
-		switch key {
-		case "keyType":
-			block.KeyType = p.curToken.Literal
-		case "key":
-			block.Key = p.curToken.Literal
-		case "visibility":
-			block.VisibilityKey = p.curToken.Literal
-		case "version":
-			block.IntegrationVersion, _ = strconv.Atoi(p.curToken.Literal)
-		}
-		if p._peekTokenIs(lexer.TOKEN_COMMA) {
-			p._nextToken()
-		} else if p._peekTokenIs(lexer.TOKEN_RPAREN) {
-			p._nextToken()
-			break
-		}
+
+	// Parse block header
+	blockAttrs := p._parseKeyValuePairs()
+	block.KeyType = blockAttrs["keyType"]
+	block.Key = blockAttrs["key"]
+	block.VisibilityKey = blockAttrs["visibility"]
+	if version, ok := blockAttrs["version"]; ok {
+		block.IntegrationVersion, _ = strconv.Atoi(version)
 	}
 
+	// Parse block methods
 	for p._peekTokenIs(lexer.TOKEN_DOT) {
 		p._nextToken()
 		if p._expectPeek(lexer.TOKEN_KEYWORD) {
 			switch p.curToken.Literal {
 			case "data":
-				block.Data = append(block.Data, p._parseBlockData())
-				p._expectPeek(lexer.TOKEN_RPAREN)
+				dataItems := p._parseBlockData()
+				block.Data = append(block.Data, dataItems...)
 			case "prop":
-				block.Properties = append(block.Properties, p._parseBlockProperty())
+				propItems := p._parseBlockProperty()
+				block.Properties = append(block.Properties, propItems...)
 			case "slot":
-				slot := p._parseBlockSlot()
-				block.Slots = append(block.Slots, slot)
-
-				// Parse child blocks in the slot
-				for !p._curTokenIs(lexer.TOKEN_RBRACE) && !p._curTokenIs(lexer.TOKEN_EOF) {
-					if p._curTokenIs(lexer.TOKEN_KEYWORD) && p.curToken.Literal == "block" {
-						child := p._parseBlock()
-						if child != nil {
-							child.Slot = slot.Slot
-							block.Blocks = append(block.Blocks, *child)
-						}
-					}
-					p._nextToken()
-				}
+				p._parseSlot(block)
 			case "action":
 				block.Actions = append(block.Actions, p._parseAction())
 			}
@@ -238,15 +515,20 @@ func (p *Parser) _parseAction() model.ActionDSLModel {
 		Triggers: []model.ActionTriggerDSLModel{},
 	}
 
-	p._expectPeek(lexer.TOKEN_LPAREN)
-	p._expectPeek(lexer.TOKEN_IDENT)
-	p._expectPeek(lexer.TOKEN_ASSIGN)
-	p._nextToken()
-	action.Event = p.curToken.Literal
-	p._expectPeek(lexer.TOKEN_RPAREN)
-	p._expectPeek(lexer.TOKEN_LBRACE)
+	if !p._expectPeek(lexer.TOKEN_LPAREN) {
+		return action
+	}
+
+	// Parse action header
+	actionAttrs := p._parseKeyValuePairs()
+	action.Event = actionAttrs["event"]
+
+	if !p._expectPeek(lexer.TOKEN_LBRACE) {
+		return action
+	}
 	p._nextToken() // Move to first token inside the action block
 
+	// Parse triggers inside action
 	for !p._curTokenIs(lexer.TOKEN_RBRACE) && !p._curTokenIs(lexer.TOKEN_EOF) {
 		if p._curTokenIs(lexer.TOKEN_KEYWORD) && p.curToken.Literal == "trigger" {
 			trigger := p._parseTriggerWithContext("NEXT")
@@ -259,10 +541,6 @@ func (p *Parser) _parseAction() model.ActionDSLModel {
 	return action
 }
 
-func (p *Parser) _parseTrigger() *model.ActionTriggerDSLModel {
-	return p._parseTriggerWithContext("")
-}
-
 func (p *Parser) _parseTriggerWithContext(defaultThen string) *model.ActionTriggerDSLModel {
 	trigger := &model.ActionTriggerDSLModel{
 		Properties: []model.TriggerPropertyDSLModel{},
@@ -271,171 +549,43 @@ func (p *Parser) _parseTriggerWithContext(defaultThen string) *model.ActionTrigg
 		Then:       defaultThen,
 	}
 
-	p._expectPeek(lexer.TOKEN_LPAREN)
-	for !p._curTokenIs(lexer.TOKEN_RPAREN) && !p._curTokenIs(lexer.TOKEN_EOF) {
-		p._nextToken()
-		key := p.curToken.Literal
-		if !p._expectPeek(lexer.TOKEN_ASSIGN) {
-			return nil
-		}
-		p._nextToken()
-		switch key {
-		case "keyType":
-			trigger.KeyType = p.curToken.Literal
-		case "name":
-			trigger.Name = p.curToken.Literal
-		case "then":
-			trigger.Then = p.curToken.Literal
-		case "version":
-			trigger.IntegrationVersion, _ = strconv.Atoi(p.curToken.Literal)
-		default:
+	if !p._expectPeek(lexer.TOKEN_LPAREN) {
+		return nil
+	}
+
+	// Parse trigger header
+	triggerAttrs := p._parseKeyValuePairs()
+	trigger.KeyType = triggerAttrs["keyType"]
+	trigger.Name = triggerAttrs["name"]
+	if then, ok := triggerAttrs["then"]; ok {
+		trigger.Then = then
+	}
+	if version, ok := triggerAttrs["version"]; ok {
+		trigger.IntegrationVersion, _ = strconv.Atoi(version)
+	}
+
+	// Check for unknown fields
+	for key := range triggerAttrs {
+		if key != "keyType" && key != "name" && key != "then" && key != "version" {
 			p.errors = append(p.errors, fmt.Sprintf("Unknown trigger field: %s", key))
-		}
-		if p._peekTokenIs(lexer.TOKEN_COMMA) {
-			p._nextToken()
-		} else if p._peekTokenIs(lexer.TOKEN_RPAREN) {
-			p._nextToken()
-			break
 		}
 	}
 
+	// Parse trigger methods
 	for p._peekTokenIs(lexer.TOKEN_DOT) {
 		p._nextToken()
 		if p._expectPeek(lexer.TOKEN_KEYWORD) {
 			switch p.curToken.Literal {
 			case "data":
-				trigger.Data = append(trigger.Data, p._parseTriggerData())
-				p._expectPeek(lexer.TOKEN_RPAREN)
-
+				dataItems := p._parseTriggerData()
+				trigger.Data = append(trigger.Data, dataItems...)
 			case "prop":
-				property := p._parseTriggerProperty()
-				trigger.Properties = append(trigger.Properties, property)
-
+				propItems := p._parseTriggerProperty()
+				trigger.Properties = append(trigger.Properties, propItems...)
 			case "then":
-				p._expectPeek(lexer.TOKEN_LPAREN)
-				p._expectPeek(lexer.TOKEN_STRING)
-				thenValue := p.curToken.Literal
-				p._expectPeek(lexer.TOKEN_RPAREN)
-				p._expectPeek(lexer.TOKEN_LBRACE)
-				p._nextToken() // Move to first token inside the then block
-
-				// Parse nested triggers inside the then block
-				for !p._curTokenIs(lexer.TOKEN_RBRACE) && !p._curTokenIs(lexer.TOKEN_EOF) {
-					if p._curTokenIs(lexer.TOKEN_KEYWORD) && p.curToken.Literal == "trigger" {
-						nestedTrigger := p._parseTriggerWithContext(thenValue)
-						if nestedTrigger != nil {
-							trigger.Triggers = append(trigger.Triggers, *nestedTrigger)
-						}
-					}
-					p._nextToken()
-				}
+				p._parseThen(trigger)
 			}
 		}
 	}
 	return trigger
-}
-
-func (p *Parser) _parseBlockProperty() model.BlockPropertyDSLModel {
-	p._expectPeek(lexer.TOKEN_LPAREN)
-	p._expectPeek(lexer.TOKEN_IDENT)
-	key := p.curToken.Literal
-	p._expectPeek(lexer.TOKEN_ASSIGN)
-	p._expectPeek(lexer.TOKEN_LPAREN)
-
-	// Parse property values for different device types
-	var valueMobile, valueTablet, valueDesktop string
-	for !p._curTokenIs(lexer.TOKEN_RPAREN) && !p._curTokenIs(lexer.TOKEN_EOF) {
-		p._nextToken()
-		propKey := p.curToken.Literal
-		p._expectPeek(lexer.TOKEN_ASSIGN)
-		p._nextToken()
-		propValue := p.curToken.Literal
-
-		switch propKey {
-		case "mobile":
-			valueMobile = propValue
-		case "tablet":
-			valueTablet = propValue
-		case "desktop":
-			valueDesktop = propValue
-		case "value":
-			valueMobile = propValue
-			valueTablet = propValue
-			valueDesktop = propValue
-		}
-
-		if p._peekTokenIs(lexer.TOKEN_COMMA) {
-			p._nextToken()
-		} else {
-			break
-		}
-	}
-
-	p._expectPeek(lexer.TOKEN_RPAREN)
-	p._expectPeek(lexer.TOKEN_RPAREN)
-	return model.BlockPropertyDSLModel{
-		Key:          key,
-		ValueMobile:  valueMobile,
-		ValueTablet:  valueTablet,
-		ValueDesktop: valueDesktop,
-		Type:         "PLACEHOLDER",
-	}
-}
-
-func (p *Parser) _parseBlockData() model.BlockDataDSLModel {
-	p._expectPeek(lexer.TOKEN_LPAREN)
-	p._expectPeek(lexer.TOKEN_IDENT)
-	key := p.curToken.Literal
-	p._expectPeek(lexer.TOKEN_ASSIGN)
-	p._nextToken()
-	val := p.curToken.Literal
-	return model.BlockDataDSLModel{
-		Key:   key,
-		Value: val,
-		Type:  "PLACEHOLDER",
-	}
-}
-
-func (p *Parser) _parseBlockSlot() model.BlockSlotDSLModel {
-	p._expectPeek(lexer.TOKEN_LPAREN)
-	p._expectPeek(lexer.TOKEN_STRING)
-	slotName := p.curToken.Literal
-	p._expectPeek(lexer.TOKEN_RPAREN)
-	p._expectPeek(lexer.TOKEN_LBRACE)
-	p._nextToken() // Move to first token inside the slot
-
-	return model.BlockSlotDSLModel{Slot: slotName}
-}
-
-func (p *Parser) _parseTriggerProperty() model.TriggerPropertyDSLModel {
-	p._expectPeek(lexer.TOKEN_LPAREN)
-	p._expectPeek(lexer.TOKEN_IDENT)
-	key := p.curToken.Literal
-	p._expectPeek(lexer.TOKEN_ASSIGN)
-	p._expectPeek(lexer.TOKEN_LPAREN)
-	p._expectPeek(lexer.TOKEN_IDENT)
-	p._expectPeek(lexer.TOKEN_ASSIGN)
-	p._nextToken()
-	val := p.curToken.Literal
-	p._expectPeek(lexer.TOKEN_RPAREN)
-	p._expectPeek(lexer.TOKEN_RPAREN)
-	return model.TriggerPropertyDSLModel{
-		Key:   key,
-		Value: val,
-		Type:  "PLACEHOLDER",
-	}
-}
-
-func (p *Parser) _parseTriggerData() model.TriggerDataDSLModel {
-	p._expectPeek(lexer.TOKEN_LPAREN)
-	p._expectPeek(lexer.TOKEN_IDENT)
-	key := p.curToken.Literal
-	p._expectPeek(lexer.TOKEN_ASSIGN)
-	p._nextToken()
-	val := p.curToken.Literal
-	return model.TriggerDataDSLModel{
-		Key:   key,
-		Value: val,
-		Type:  "PLACEHOLDER",
-	}
 }

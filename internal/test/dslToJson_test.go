@@ -243,47 +243,47 @@ frame(
     block(keyType = "ROOT", key = "root", visibility = visible)
     .slot("content") {
         block(keyType = "nativeblocks/column", key = "mainColumn", visibility = visible, version = 1)
-        .assignProperty(horizontalAlignment = (valueMobile = "centerHorizontally", valueTablet = "centerHorizontally", valueDesktop = "centerHorizontally"))
-        .assignProperty(width = (valueMobile = "match", valueTablet = "match", valueDesktop = "match"))
-        .assignProperty(height = (valueMobile = "match", valueTablet = "match", valueDesktop = "match"))
+        .prop(horizontalAlignment = (valueMobile = "centerHorizontally", valueTablet = "centerHorizontally", valueDesktop = "centerHorizontally"))
+        .prop(width = (valueMobile = "match", valueTablet = "match", valueDesktop = "match"))
+        .prop(height = (valueMobile = "match", valueTablet = "match", valueDesktop = "match"))
         .slot("content") {
             block(keyType = "nativeblocks/column", key = "nativeblocksColumn", VISIBILITY = visible, version = 1)
-            .assignProperty(horizontalAlignment = (valueMobile = "centerHorizontally", valueTablet = "centerHorizontally", valueDesktop = "centerHorizontally"))
-            .assignProperty(paddingTop = (valueMobile = "64", valueTablet = "64", valueDesktop = "64"))
-            .assignProperty(weight = (valueMobile = "0.4f", valueTablet = "0.4f", valueDesktop = "0.4f"))
-            .assignProperty(verticalArrangement = (valueMobile = "spaceAround", valueTablet = "spaceAround", valueDesktop = "spaceAround"))
+            .prop(horizontalAlignment = (valueMobile = "centerHorizontally", valueTablet = "centerHorizontally", valueDesktop = "centerHorizontally"))
+            .prop(paddingTop = (valueMobile = "64", valueTablet = "64", valueDesktop = "64"))
+            .prop(weight = (valueMobile = "0.4f", valueTablet = "0.4f", valueDesktop = "0.4f"))
+            .prop(verticalArrangement = (valueMobile = "spaceAround", valueTablet = "spaceAround", valueDesktop = "spaceAround"))
             .slot("content") {
                 block(keyType = "nativeblocks/image", key = "logo", visibility = visible, version = 1)
-                .assignProperty(scaleType = (valueMobile = "inside", valueTablet = "inside", valueDesktop = "inside"))
-                .assignProperty(width = (valueMobile = "128", valueTablet = "128", valueDesktop = "128"))
-                .assignProperty(height = (valueMobile = "128", valueTablet = "128", valueDesktop = "128"))
-                .assignData(imageUrl = logo)
+                .prop(scaleType = (valueMobile = "inside", valueTablet = "inside", valueDesktop = "inside"))
+                .prop(width = (valueMobile = "128", valueTablet = "128", valueDesktop = "128"))
+                .prop(height = (valueMobile = "128", valueTablet = "128", valueDesktop = "128"))
+                .data(imageUrl = logo)
 
                 block(keyType = "nativeblocks/text", key = "welcome", visibility = visible, version = 1)
-                .assignProperty(fontSize = (valueMobile = "24", valueTablet = "24", valueDesktop = "24"))
-                .assignProperty(textAlign = (valueMobile = "center", valueTablet = "center", valueDesktop = "center"))
-                .assignProperty(width = (valueMobile = "wrap", valueTablet = "wrap", valueDesktop = "wrap"))
-                .assignData(text = welcome)
+                .prop(fontSize = (valueMobile = "24", valueTablet = "24", valueDesktop = "24"))
+                .prop(textAlign = (valueMobile = "center", valueTablet = "center", valueDesktop = "center"))
+                .prop(width = (valueMobile = "wrap", valueTablet = "wrap", valueDesktop = "wrap"))
+                .data(text = welcome)
             }
             block(keyType = "nativeblocks/row", key = "buttonsRow", visibility = visible, version = 1)
-            .assignProperty(horizontalArrangement = (valueMobile = "spaceAround", valueTablet = "spaceAround", valueDesktop = "spaceAround"))
-            .assignProperty(verticalAlignment = (valueMobile = "centerVertically", valueTablet = "centerVertically", valueDesktop = "centerVertically"))
-            .assignProperty(paddingTop = (valueMobile = "12", valueTablet = "12", valueDesktop = "12"))
-            .assignProperty(weight = (valueMobile = "0.6f", valueTablet = "0.6f", valueDesktop = "0.6f"))
+            .prop(horizontalArrangement = (valueMobile = "spaceAround", valueTablet = "spaceAround", valueDesktop = "spaceAround"))
+            .prop(verticalAlignment = (valueMobile = "centerVertically", valueTablet = "centerVertically", valueDesktop = "centerVertically"))
+            .prop(paddingTop = (valueMobile = "12", valueTablet = "12", valueDesktop = "12"))
+            .prop(weight = (valueMobile = "0.6f", valueTablet = "0.6f", valueDesktop = "0.6f"))
             .slot("content") {
                 block(keyType = "nativeblocks/button", key = "decreaseButton", visibility = visible, version = 1)
-                .assignProperty(backgroundColor = (valueMobile = "#2563EB", valueTablet = "#2563EB", valueDesktop = "#2563EB"))
-                .assignProperty(borderColor = (valueMobile = "#2563EB", valueTablet = "#2563EB", valueDesktop = "#2563EB"))
-                .assignProperty(radiusTopStart = (valueMobile = "32", valueTablet = "32", valueDesktop = "32"))
-                .assignProperty(radiusTopEnd = (valueMobile = "32", valueTablet = "32", valueDesktop = "32"))
-                .assignProperty(radiusBottomStart = (valueMobile = "32", valueTablet = "32", valueDesktop = "32"))
-                .assignProperty(radiusBottomEnd = (valueMobile = "32", valueTablet = "32", valueDesktop = "32"))
-                .assignProperty(fontSize = (valueMobile = "20", valueTablet = "20", valueDesktop = "20"))
-                .assignData(text = decreaseButton)
-                .assignData(enable = enable)
+                .prop(backgroundColor = (valueMobile = "#2563EB", valueTablet = "#2563EB", valueDesktop = "#2563EB"))
+                .prop(borderColor = (valueMobile = "#2563EB", valueTablet = "#2563EB", valueDesktop = "#2563EB"))
+                .prop(radiusTopStart = (valueMobile = "32", valueTablet = "32", valueDesktop = "32"))
+                .prop(radiusTopEnd = (valueMobile = "32", valueTablet = "32", valueDesktop = "32"))
+                .prop(radiusBottomStart = (valueMobile = "32", valueTablet = "32", valueDesktop = "32"))
+                .prop(radiusBottomEnd = (valueMobile = "32", valueTablet = "32", valueDesktop = "32"))
+                .prop(fontSize = (valueMobile = "20", valueTablet = "20", valueDesktop = "20"))
+                .data(text = decreaseButton)
+                .data(enable = enable)
                 .action(event = "onClick") {
                     trigger(keyType = "nativeblocks/change_variable", name = "decrease", version = 1)
-                    .assignProperty(variableValue = "#SCRIPT
+                    .prop(variableValue = "#SCRIPT
                     const count = {var:count}
                     let result = count
                     if (count >= 1) {
@@ -293,37 +293,36 @@ frame(
                     }
                     result
                     #ENDSCRIPT")
-                    .assignData(variableKey = count)
+                    .data(variableKey = count)
                 }
                 block(keyType = "nativeblocks/text", key = "countText", visibility = visible, version = 1)
-                .assignProperty(fontSize = (valueMobile = "18", valueTablet = "18", valueDesktop = "18"))
-                .assignProperty(textAlign = (valueMobile = "center", valueTablet = "center", valueDesktop = "center"))
-                .assignProperty(width = (valueMobile = "128", valueTablet = "128", valueDesktop = "128"))
-                .assignData(text = count)
+                .prop(fontSize = (valueMobile = "18", valueTablet = "18", valueDesktop = "18"))
+                .prop(textAlign = (valueMobile = "center", valueTablet = "center", valueDesktop = "center"))
+                .prop(width = (valueMobile = "128", valueTablet = "128", valueDesktop = "128"))
+                .data(text = count)
                 block(keyType = "nativeblocks/button", key = "increaseButton", visibility = visible, version = 1)
-                .assignProperty(backgroundColor = (valueMobile = "#2563EB", valueTablet = "#2563EB", valueDesktop = "#2563EB"))
-                .assignProperty(borderColor = (valueMobile = "#2563EB", valueTablet = "#2563EB", valueDesktop = "#2563EB"))
-                .assignProperty(radiusTopStart = (valueMobile = "32", valueTablet = "32", valueDesktop = "32"))
-                .assignProperty(radiusTopEnd = (valueMobile = "32", valueTablet = "32", valueDesktop = "32"))
-                .assignProperty(radiusBottomStart = (valueMobile = "32", valueTablet = "32", valueDesktop = "32"))
-                .assignProperty(radiusBottomEnd = (valueMobile = "32", valueTablet = "32", valueDesktop = "32"))
-                .assignProperty(fontSize = (valueMobile = "20", valueTablet = "20", valueDesktop = "20"))
-                .assignData(text = increaseButton)
-                .assignData(enable = enable)
+                .prop(backgroundColor = (valueMobile = "#2563EB", valueTablet = "#2563EB", valueDesktop = "#2563EB"))
+                .prop(borderColor = (valueMobile = "#2563EB", valueTablet = "#2563EB", valueDesktop = "#2563EB"))
+                .prop(radiusTopStart = (valueMobile = "32", valueTablet = "32", valueDesktop = "32"))
+                .prop(radiusTopEnd = (valueMobile = "32", valueTablet = "32", valueDesktop = "32"))
+                .prop(radiusBottomStart = (valueMobile = "32", valueTablet = "32", valueDesktop = "32"))
+                .prop(radiusBottomEnd = (valueMobile = "32", valueTablet = "32", valueDesktop = "32"))
+                .prop(fontSize = (valueMobile = "20", valueTablet = "20", valueDesktop = "20"))
+                .data(text = increaseButton)
+                .data(enable = enable)
                 .action(event = "onClick") {
                     trigger(keyType = "nativeblocks/change_variable", name = "increase", version = 1)
-                    .assignProperty(variableValue = "#SCRIPT
+                    .prop(variableValue = "#SCRIPT
                     const count = {var:count}
                     const result = count + 1
                     result
                     #ENDSCRIPT")
-                    .assignData(variableKey = count)
+                    .data(variableKey = count)
                 }
             }
         }
     }
-}
-`
+}`
 
 	frameDSL, err := nbx.Parse(dsl)
 	if err != nil {
