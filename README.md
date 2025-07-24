@@ -83,6 +83,11 @@ frame(
 - **Data Assignment**  
   ```
   .data(key = value)
+  // or
+  .data(
+      key1 = value1, 
+      key2 = value2
+  )
   ```
   
 - **Property Assignment (single or multi-device)**  
