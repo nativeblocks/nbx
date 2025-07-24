@@ -38,7 +38,7 @@ frame(
                     height = "128",
                     contentMode = "fit"
                 )
-                .assignData(imageUrl = logo)
+                .data(imageUrl = logo)
 
                 // Welcome text
                 block(keyType = "nativeblocks/text", key = "welcomeText", visibility = visible, version = 1)
@@ -47,7 +47,7 @@ frame(
                     multilineTextAlignment = "center",
                     width = "fill"
                 )
-                .assignData(text = welcomeText)
+                .data(text = welcomeText)
             }
 
             // Controls HStack
@@ -72,8 +72,8 @@ frame(
                     radiusBottomEnd = "32",
                     fontSize = "20"
                 )
-                .assignData(text = decreaseButton)
-                .assignData(enable = enable)
+                .data(text = decreaseButton)
+                .data(enable = enable)
                 .action(event = "onClick") {
                     trigger(keyType = "nativeblocks/change_variable", name = "decrease", version = 1)
                     .prop(
@@ -88,7 +88,7 @@ frame(
                     result
                     #ENDSCRIPT"
                     )
-                    .assignData(variableKey = count)
+                    .data(variableKey = count)
                 }
 
                 // Counter text
@@ -99,7 +99,7 @@ frame(
                     height = "40",
                     multilineTextAlignment = "center"
                 )
-                .assignData(text = count)
+                .data(text = count)
 
                 // Increase button
                 block(keyType = "nativeblocks/button", key = "increaseBtn", visibility = visible, version = 1)
@@ -113,8 +113,8 @@ frame(
                     radiusBottomEnd = "32",
                     fontSize = "20"
                 )
-                .assignData(text = increaseButton)
-                .assignData(enable = enable)
+                .data(text = increaseButton)
+                .data(enable = enable)
                 .action(event = "onClick") {
                     trigger(keyType = "nativeblocks/change_variable", name = "increase", version = 1)
                     .prop(
@@ -124,7 +124,7 @@ frame(
                     result
                     #ENDSCRIPT"
                     )
-                    .assignData(variableKey = count)
+                    .data(variableKey = count)
                 }
                 block(keyType = "nativeblocks/spacer", key = "spacer_control_2", visibility = visible, version = 1)
             }

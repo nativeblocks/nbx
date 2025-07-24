@@ -19,12 +19,12 @@ frame(
         block(keyType = "column", key = "main", visibility = visible)
         .slot("content") {
             block(keyType = "input", key = "username", visibility = visible)
-            .assignData(text = username)
+            .data(text = username)
             block(keyType = "input", key = "password", visibility = visible)
             .prop(
                 color = (mobile = "NONE", valueTablet = "NONE", valueDesktop = "NONE")
             )
-            .assignData(text = password)
+            .data(text = password)
             .action(event = "onTextChange") {
                 trigger(keyType = "validate", name = "validate password")
                 .then("FAILURE") {
@@ -82,12 +82,12 @@ frame(
         block(keyType = "nativeblocks/column", key = "main", visibility = visible)
         .slot("content") {
             block(keyType = "nativeblocks/text_field", key = "username", visibility = visible)
-            .assignData(text = username)
+            .data(text = username)
             block(keyType = "nativeblocks/text_field", key = "password", visibility = visible)
             .prop(
                 textColor = (mobile = "NONE", valueTablet = "NONE", valueDesktop = "NONE")
             )
-            .assignData(text = password)
+            .data(text = password)
             .action(event = "onTextChange") {
                 trigger(keyType = "nativeblocks/change_block_property", name = "show error")
                 .prop(
