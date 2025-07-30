@@ -257,7 +257,7 @@ func (p *Parser) _parseBlockProperty() []model.BlockPropertyDSLModel {
 					p._nextToken()
 					continue
 				} else if p._peekTokenIs(lexer.TOKEN_RPAREN) {
-					// Not advancing here; the for will step and break
+					// Not advancing here; for will step and break
 					continue
 				}
 			}
@@ -299,8 +299,20 @@ func (p *Parser) _parseBlockProperty() []model.BlockPropertyDSLModel {
 				Type:         "PLACEHOLDER",
 			})
 		} else {
-			// Single value (non-multiplatform)
+			// Single value, possibly multiline, parse everything up to next ',' or ')'
 			value := p.curToken.Literal
+			for {
+				// If at end or comma (i.e end of prop), break.
+				if p._peekTokenIs(lexer.TOKEN_COMMA) || p._peekTokenIs(lexer.TOKEN_RPAREN) || p._peekTokenIs(lexer.TOKEN_EOF) {
+					break
+				}
+				// Otherwise, accumulate new tokens as part of the value (including newlines, etc)
+				p._nextToken()
+				// Separate by space or newline character for clarity. If token type was NEWLINE (optional), add \n, else add a space.
+				// But for now, we just add Literal with a newline.
+				// Go lexers rarely make a newline token so we just use the literal.
+				value += "\n" + p.curToken.Literal
+			}
 			propList = append(propList, model.BlockPropertyDSLModel{
 				Key:          propKey,
 				ValueMobile:  value,
@@ -310,6 +322,7 @@ func (p *Parser) _parseBlockProperty() []model.BlockPropertyDSLModel {
 			})
 		}
 
+		// Now step to comma or paren (prop separator)
 		if p._peekTokenIs(lexer.TOKEN_COMMA) {
 			p._nextToken()
 			continue
@@ -344,46 +357,44 @@ func (p *Parser) _parseTriggerProperty() []model.TriggerPropertyDSLModel {
 		return propList
 	}
 
-	// Parse all property declarations
 	for !p._curTokenIs(lexer.TOKEN_RPAREN) && !p._curTokenIs(lexer.TOKEN_EOF) {
 		p._nextToken()
+
+		// Property key
 		if !p._curTokenIs(lexer.TOKEN_IDENT) {
 			p.errors = append(p.errors, "Expected identifier in prop declaration")
 			return propList
 		}
-		key := p.curToken.Literal
+		propKey := p.curToken.Literal
 
 		if !p._expectPeek(lexer.TOKEN_ASSIGN) {
 			return propList
 		}
 
-		if !p._expectPeek(lexer.TOKEN_LPAREN) {
-			return propList
-		}
-
-		// Parse the nested value
-		if !p._expectPeek(lexer.TOKEN_IDENT) {
-			return propList
-		}
-		if !p._expectPeek(lexer.TOKEN_ASSIGN) {
-			return propList
-		}
+		// Only single value is supported
 		p._nextToken()
 		value := p.curToken.Literal
-
-		if !p._expectPeek(lexer.TOKEN_RPAREN) {
-			return propList
+		for {
+			// If at end or comma (i.e end of prop), break.
+			if p._peekTokenIs(lexer.TOKEN_COMMA) || p._peekTokenIs(lexer.TOKEN_RPAREN) || p._peekTokenIs(lexer.TOKEN_EOF) {
+				break
+			}
+			// Otherwise, accumulate new tokens as part of the value (including newlines, etc)
+			p._nextToken()
+			value += "\n" + p.curToken.Literal
 		}
-
 		propList = append(propList, model.TriggerPropertyDSLModel{
-			Key:   key,
+			Key:   propKey,
 			Value: value,
 			Type:  "PLACEHOLDER",
 		})
 
+		// Now step to comma or paren (prop separator)
 		if p._peekTokenIs(lexer.TOKEN_COMMA) {
 			p._nextToken()
-		} else if p._peekTokenIs(lexer.TOKEN_RPAREN) {
+			continue
+		}
+		if p._peekTokenIs(lexer.TOKEN_RPAREN) {
 			p._nextToken()
 			break
 		}
