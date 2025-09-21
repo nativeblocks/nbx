@@ -34,7 +34,6 @@ frame(
                     height = "128"
                 )
                 .data(imageUrl = logo)
-
                 block(keyType = "nativeblocks/text", key = "welcome", visibility = visible, version = 1)
                 .prop(
                     fontSize = "24",
@@ -76,6 +75,7 @@ frame(
                     #ENDSCRIPT")
                     .data(variableKey = count)
                 }
+
                 block(keyType = "nativeblocks/text", key = "countText", visibility = visible, version = 1)
                 .prop(
                     fontSize = "18",
@@ -103,6 +103,7 @@ frame(
                     #ENDSCRIPT")
                     .data(variableKey = count)
                 }
+
             }
         }
     }

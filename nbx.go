@@ -2,11 +2,12 @@ package nbx
 
 import (
 	"errors"
+	"strings"
+
 	"github.com/nativeblocks/nbx/internal/compiler"
 	"github.com/nativeblocks/nbx/internal/lexer"
 	"github.com/nativeblocks/nbx/internal/model"
 	"github.com/nativeblocks/nbx/internal/parser"
-	"strings"
 )
 
 type FrameJson = model.FrameJson
@@ -55,4 +56,9 @@ func Parse(stringifyDsl string) (FrameDSLModel, error) {
 		return FrameDSLModel{}, errors.New(strings.Join(p.Errors(), "; "))
 	}
 	return *frame, nil
+}
+
+// ToString converts a FrameDSLModel back to the original NBX DSL string format.
+func ToString(frameDSL FrameDSLModel) string {
+	return compiler.ToString(frameDSL)
 }
