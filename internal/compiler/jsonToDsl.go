@@ -192,9 +192,13 @@ func _mapVariableModelToDSL(variable model.VariableJson) model.VariableDSLModel 
 }
 
 func _mapBlockDataModelToDSL(data model.BlockDataJson) model.BlockDataDSLModel {
+	value := data.Value
+	if value == "" {
+		value = "null"
+	}
 	return model.BlockDataDSLModel{
 		Key:   data.Key,
-		Value: data.Value,
+		Value: value,
 		Type:  data.Type,
 	}
 }
@@ -232,9 +236,13 @@ func _mapTriggerPropertyModelToDSL(property model.TriggerPropertyJson) model.Tri
 }
 
 func _mapTriggerDataModelToDSL(data model.TriggerDataJson) model.TriggerDataDSLModel {
+	value := data.Value
+	if value == "" {
+		value = "null"
+	}
 	return model.TriggerDataDSLModel{
 		Key:   data.Key,
-		Value: data.Value,
+		Value: value,
 		Type:  data.Type,
 	}
 }

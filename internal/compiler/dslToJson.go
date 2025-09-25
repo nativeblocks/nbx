@@ -3,11 +3,12 @@ package compiler
 import (
 	"errors"
 	"fmt"
+	"regexp"
+	"strings"
+
 	"github.com/google/uuid"
 	"github.com/nativeblocks/nbx/internal/model"
 	"github.com/xeipuuv/gojsonschema"
-	"regexp"
-	"strings"
 )
 
 func ToJson(frameDSL model.FrameDSLModel, schema string, frameID string) (model.FrameJson, error) {
@@ -163,14 +164,16 @@ func _processTriggers(actionId string, triggers []model.ActionTriggerDSLModel, p
 		}
 
 		for _, dataItem := range trigger.Data {
-			newData := model.TriggerDataJson{
-				ActionTriggerId: newTrigger.Id,
-				Key:             dataItem.Key,
-				Value:           dataItem.Value,
-				Type:            dataItem.Type,
-				Description:     "",
+			if dataItem.Value != "null" {
+				newData := model.TriggerDataJson{
+					ActionTriggerId: newTrigger.Id,
+					Key:             dataItem.Key,
+					Value:           dataItem.Value,
+					Type:            dataItem.Type,
+					Description:     "",
+				}
+				newTrigger.Data = append(newTrigger.Data, newData)
 			}
-			newTrigger.Data = append(newTrigger.Data, newData)
 		}
 
 		err := _findTriggerVariable(variables, newTrigger.Data, newTrigger.Name)
@@ -250,14 +253,16 @@ func _processBlocks(frameId string, blocks []model.BlockDSLModel, parentId strin
 		}
 
 		for _, dataItem := range block.Data {
-			newData := model.BlockDataJson{
-				BlockId:     newBlock.Id,
-				Key:         dataItem.Key,
-				Value:       dataItem.Value,
-				Type:        dataItem.Type,
-				Description: "",
+			if dataItem.Value != "null" {
+				newData := model.BlockDataJson{
+					BlockId:     newBlock.Id,
+					Key:         dataItem.Key,
+					Value:       dataItem.Value,
+					Type:        dataItem.Type,
+					Description: "",
+				}
+				newBlock.Data = append(newBlock.Data, newData)
 			}
-			newBlock.Data = append(newBlock.Data, newData)
 		}
 
 		for _, slotItem := range block.Slots {
@@ -315,12 +320,12 @@ func _findBlockVariable(variables []model.VariableJson, data []model.BlockDataJs
 	for _, dataEntry := range data {
 		found := false
 		for _, variable := range variables {
-			if variable.Key == dataEntry.Value {
+			if variable.Key == dataEntry.Value && dataEntry.Value != "null" {
 				found = true
 				break
 			}
 		}
-		if !found && dataEntry.Value != "" {
+		if !found && (dataEntry.Value != "" && dataEntry.Value != "null") {
 			return fmt.Errorf("no matching variable found for %s block in data entry with key: %s", blockKey, dataEntry.Key)
 		}
 	}
@@ -331,12 +336,12 @@ func _findTriggerVariable(variables []model.VariableJson, data []model.TriggerDa
 	for _, dataEntry := range data {
 		found := false
 		for _, variable := range variables {
-			if variable.Key == dataEntry.Value {
+			if variable.Key == dataEntry.Value && dataEntry.Value != "null" {
 				found = true
 				break
 			}
 		}
-		if !found && dataEntry.Value != "" {
+		if !found && (dataEntry.Value != "" && dataEntry.Value != "null") {
 			return fmt.Errorf("no matching variable found for %s trigger in data entry with key: %s", triggerName, dataEntry.Key)
 		}
 	}
