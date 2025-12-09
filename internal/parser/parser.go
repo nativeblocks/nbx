@@ -2,9 +2,10 @@ package parser
 
 import (
 	"fmt"
+	"strconv"
+
 	"github.com/nativeblocks/nbx/internal/lexer"
 	"github.com/nativeblocks/nbx/internal/model"
-	"strconv"
 )
 
 type Parser struct {
@@ -217,6 +218,11 @@ func (p *Parser) _parseBlockProperty() []model.BlockPropertyDSLModel {
 	for !p._curTokenIs(lexer.TOKEN_RPAREN) && !p._curTokenIs(lexer.TOKEN_EOF) {
 		p._nextToken()
 
+		// Handle trailing comma - if we hit closing paren after a comma, break
+		if p._curTokenIs(lexer.TOKEN_RPAREN) {
+			break
+		}
+
 		// Property key
 		if !p._curTokenIs(lexer.TOKEN_IDENT) {
 			p.errors = append(p.errors, "Expected identifier in prop declaration")
@@ -359,6 +365,11 @@ func (p *Parser) _parseTriggerProperty() []model.TriggerPropertyDSLModel {
 
 	for !p._curTokenIs(lexer.TOKEN_RPAREN) && !p._curTokenIs(lexer.TOKEN_EOF) {
 		p._nextToken()
+
+		// Handle trailing comma - if we hit closing paren after a comma, break
+		if p._curTokenIs(lexer.TOKEN_RPAREN) {
+			break
+		}
 
 		// Property key
 		if !p._curTokenIs(lexer.TOKEN_IDENT) {
@@ -549,6 +560,11 @@ func (p *Parser) _parseFrame() *model.FrameDSLModel {
 			}
 			p._nextToken()
 		}
+	}
+
+	// Return nil if there were any parsing errors
+	if len(p.errors) > 0 {
+		return nil
 	}
 
 	return frame
