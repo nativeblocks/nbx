@@ -1,8 +1,9 @@
 package parser
 
 import (
-	"github.com/nativeblocks/nbx/internal/lexer"
 	"testing"
+
+	"github.com/nativeblocks/nbx/internal/lexer"
 )
 
 func TestParser_FrameOnly(t *testing.T) {
@@ -133,8 +134,8 @@ frame(
                     .prop(color = "GREEN")
                 }
             }
-        }    
-    }   
+        }
+    }
 }`
 
 	l := lexer.NewLexer(input)
@@ -349,14 +350,14 @@ frame(
         .prop(
             horizontalAlignment = (mobile = "centerHorizontally", tablet = "centerHorizontally", desktop = "centerHorizontally"),
             width = (mobile = "wrap", tablet = "match", desktop = "match"),
-            height = match
+            height = "match"
         )
         .slot("content") {
             block(keyType = "nativeblocks/column", key = "nativeblocksColumn", visibility = visible, version = 1)
             .prop(
 				horizontalAlignment = (value = "centerHorizontally"),
 				paddingTop = "64",
-				weight = "0.4f",
+				weight = "0.4f"
 			)
             .prop(verticalArrangement = (mobile = "spaceAround", tablet = "spaceAround", desktop = "spaceAround"))
             .slot("content") {

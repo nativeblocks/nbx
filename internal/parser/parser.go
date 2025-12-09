@@ -557,6 +557,10 @@ func (p *Parser) _parseFrame() *model.FrameDSLModel {
 						frame.Blocks = tmp
 					}
 				}
+			} else {
+				// Unexpected token in frame body
+				p.errors = append(p.errors, fmt.Sprintf("Line %d, Column %d: unexpected token '%s' in frame body, expected 'var' or 'block'",
+					p.curToken.Line, p.curToken.Column, p.curToken.Literal))
 			}
 			p._nextToken()
 		}
