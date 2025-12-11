@@ -1,16 +1,16 @@
 package nbx
 
 import (
-	"errors"
-	"strings"
-
 	"github.com/nativeblocks/nbx/internal/compiler"
+	"github.com/nativeblocks/nbx/internal/errors"
 	"github.com/nativeblocks/nbx/internal/formatter"
 	"github.com/nativeblocks/nbx/internal/lexer"
 	"github.com/nativeblocks/nbx/internal/model"
 	"github.com/nativeblocks/nbx/internal/parser"
+	"github.com/nativeblocks/nbx/internal/validator"
 )
 
+type Error = errors.Error
 type FrameJson = model.FrameJson
 type FrameDSLModel = model.FrameDSLModel
 
@@ -37,29 +37,45 @@ type ActionTriggerJson = model.ActionTriggerJson
 type TriggerPropertyJson = model.TriggerPropertyJson
 type TriggerDataJson = model.TriggerDataJson
 
+func Parse(stringifyDsl string) (FrameDSLModel, []Error) {
+	l := lexer.NewLexer(stringifyDsl)
+	p := parser.NewParser(l, stringifyDsl)
+	frame := p.ParseNBX()
+
+	errorCollector := p.ErrorCollector()
+
+	if frame == nil || errorCollector.HasErrors() {
+		return FrameDSLModel{}, _errorValueOf(errorCollector.Errors())
+	}
+
+	collector, _ := validator.ValidateWithSource(frame, stringifyDsl)
+
+	var all []Error
+	if errorCollector != nil {
+		all = append(all, _errorValueOf(errorCollector.Errors())...)
+		all = append(all, _errorValueOf(errorCollector.Warnings())...)
+	}
+	if collector != nil {
+		all = append(all, _errorValueOf(collector.Errors())...)
+		all = append(all, _errorValueOf(collector.Warnings())...)
+	}
+
+	return *frame, all
+}
+
 // ToDSL converts a FrameJson to a FrameDSLModel.
 func ToDSL(frame FrameJson) FrameDSLModel {
 	return compiler.ToDsl(frame)
 }
 
-// ToJSON converts a FrameDSLModel to a FrameJson, validating with the given schema and frameID.
-func ToJSON(frameDSL FrameDSLModel, schema string, frameID string) (FrameJson, error) {
-	return compiler.ToJson(frameDSL, schema, frameID)
+// ToJSON converts a FrameDSLModel to a FrameJson with integration validation.
+// blocksJSON and actionsJSON must contain the integration definitions in JSON format.
+// frameID can be empty to auto-generate an ID.
+func ToJSON(frameDSL FrameDSLModel, blocksJSON, actionsJSON, frameID string) (FrameJson, error) {
+	return compiler.ToJson(frameDSL, blocksJSON, actionsJSON, frameID)
 }
 
-// Parse parses a stringify DSL and returns a FrameDSLModel.
-// It returns an error if parsing fails, including parser errors joined by semicolons.
-func Parse(stringifyDsl string) (FrameDSLModel, error) {
-	l := lexer.NewLexer(stringifyDsl)
-	p := parser.NewParser(l)
-	frame := p.ParseNBX()
-	if frame == nil {
-		return FrameDSLModel{}, errors.New(strings.Join(p.Errors(), "; "))
-	}
-	return *frame, nil
-}
-
-// ToString converts a FrameDSLModel back to the original NBX DSL string format.
+// ToString converts a FrameDSLModel back to DSL string format.
 func ToString(frameDSL FrameDSLModel) string {
 	return compiler.ToString(frameDSL)
 }
@@ -68,4 +84,15 @@ func ToString(frameDSL FrameDSLModel) string {
 // It parses the DSL to ensure validity and then formats it with consistent indentation and spacing.
 func Format(dslString string) (string, error) {
 	return formatter.Format(dslString)
+}
+
+func _errorValueOf(items []*Error) []Error {
+	out := make([]Error, 0, len(items))
+	for _, e := range items {
+		if e == nil {
+			continue
+		}
+		out = append(out, *e)
+	}
+	return out
 }
