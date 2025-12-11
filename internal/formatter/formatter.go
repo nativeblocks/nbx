@@ -1,20 +1,20 @@
 package formatter
 
 import (
-	"errors"
 	"fmt"
 	"regexp"
 	"strings"
 
+	"github.com/nativeblocks/nbx/internal/errors"
 	"github.com/nativeblocks/nbx/internal/lexer"
 	"github.com/nativeblocks/nbx/internal/model"
 	"github.com/nativeblocks/nbx/internal/parser"
 )
 
-func Format(dslString string) (string, error) {
-	frame, err := _parseToFrameDSL(dslString)
-	if err != nil {
-		return "", err
+func Format(dslString string) (string, []*errors.Error) {
+	frame, errs := _parseToFrameDSL(dslString)
+	if len(errs) > 0 {
+		return "", errs
 	}
 
 	return FormatFrameDSL(frame), nil
@@ -254,17 +254,14 @@ func _formatScriptBlock(script string, baseIndentLevel int) string {
 		strings.Repeat("    ", baseIndentLevel))
 }
 
-func _parseToFrameDSL(dslString string) (model.FrameDSLModel, error) {
+func _parseToFrameDSL(dslString string) (model.FrameDSLModel, []*errors.Error) {
 	l := lexer.NewLexer(dslString)
 	p := parser.NewParser(l, dslString)
 	frame := p.ParseNBX()
 
 	errorCollector := p.ErrorCollector()
 	if frame == nil || errorCollector.HasErrors() {
-		if errorCollector.HasErrors() {
-			return model.FrameDSLModel{}, errors.New(errorCollector.FormatAll())
-		}
-		return model.FrameDSLModel{}, errors.New("failed to parse DSL")
+		return model.FrameDSLModel{}, errorCollector.Errors()
 	}
 	return *frame, nil
 }
