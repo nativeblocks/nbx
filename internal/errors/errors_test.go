@@ -8,7 +8,7 @@ import (
 )
 
 func TestErrorFormat(t *testing.T) {
-	err := &NBXError{
+	err := &Error{
 		Severity:   SeverityError,
 		Message:    "Expected '=' after property name",
 		Line:       10,
@@ -128,7 +128,7 @@ func TestLevenshtein(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		result := levenshtein(tt.s1, tt.s2)
+		result := _levenshtein(tt.s1, tt.s2)
 		if result != tt.expected {
 			t.Errorf("levenshtein(%q, %q) = %d, want %d", tt.s1, tt.s2, result, tt.expected)
 		}
@@ -148,7 +148,7 @@ func TestFindSimilar(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		similar := findSimilar(tt.target, candidates)
+		similar := _findSimilar(tt.target, candidates)
 		if len(similar) == 0 {
 			t.Errorf("findSimilar(%q) returned no results", tt.target)
 			continue

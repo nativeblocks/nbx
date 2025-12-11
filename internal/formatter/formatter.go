@@ -11,9 +11,8 @@ import (
 	"github.com/nativeblocks/nbx/internal/parser"
 )
 
-// Format takes a DSL string and returns a properly formatted version
 func Format(dslString string) (string, error) {
-	frame, err := parseToFrameDSL(dslString)
+	frame, err := _parseToFrameDSL(dslString)
 	if err != nil {
 		return "", err
 	}
@@ -33,7 +32,7 @@ func FormatFrameDSL(frame model.FrameDSLModel) string {
 		builder.WriteString(fmt.Sprintf("    var %s: %s = %s\n",
 			variable.Key,
 			variable.Type,
-			formatVariableValueConsistent(variable.Value, variable.Type)))
+			_formatVariableValueConsistent(variable.Value, variable.Type)))
 	}
 
 	if len(frame.Variables) > 0 {
@@ -41,14 +40,14 @@ func FormatFrameDSL(frame model.FrameDSLModel) string {
 	}
 
 	for _, block := range frame.Blocks {
-		formatBlockConsistent(&builder, block, 1)
+		_formatBlockConsistent(&builder, block, 1)
 	}
 
 	builder.WriteString("}")
 	return builder.String()
 }
 
-func formatVariableValueConsistent(value, valueType string) string {
+func _formatVariableValueConsistent(value, valueType string) string {
 	switch valueType {
 	case "STRING":
 		return fmt.Sprintf("\"%s\"", value)
@@ -59,7 +58,7 @@ func formatVariableValueConsistent(value, valueType string) string {
 	}
 }
 
-func formatBlockConsistent(builder *strings.Builder, block model.BlockDSLModel, indentLevel int) {
+func _formatBlockConsistent(builder *strings.Builder, block model.BlockDSLModel, indentLevel int) {
 	indent := strings.Repeat("    ", indentLevel)
 
 	builder.WriteString(fmt.Sprintf("%sblock(keyType = \"%s\", key = \"%s\"", indent, block.KeyType, block.Key))
@@ -80,7 +79,7 @@ func formatBlockConsistent(builder *strings.Builder, block model.BlockDSLModel, 
 
 		for i, prop := range block.Properties {
 			propIndent := strings.Repeat("    ", indentLevel+1)
-			value := getSinglePropertyValueConsistent(prop)
+			value := _getSinglePropertyValueConsistent(prop)
 			builder.WriteString(fmt.Sprintf("%s%s = \"%s\"", propIndent, prop.Key, value))
 
 			if i < len(block.Properties)-1 {
@@ -107,7 +106,7 @@ func formatBlockConsistent(builder *strings.Builder, block model.BlockDSLModel, 
 	}
 
 	for _, action := range block.Actions {
-		formatActionConsistent(builder, action, indentLevel)
+		_formatActionConsistent(builder, action, indentLevel)
 	}
 
 	if len(block.Blocks) > 0 || len(block.Slots) > 0 {
@@ -133,7 +132,7 @@ func formatBlockConsistent(builder *strings.Builder, block model.BlockDSLModel, 
 				builder.WriteString(fmt.Sprintf("%s.slot(\"%s\") {\n", indent, slotName))
 
 				for _, childBlock := range blocks {
-					formatBlockConsistent(builder, childBlock, indentLevel+1)
+					_formatBlockConsistent(builder, childBlock, indentLevel+1)
 				}
 
 				builder.WriteString(fmt.Sprintf("%s}\n", indent))
@@ -144,7 +143,7 @@ func formatBlockConsistent(builder *strings.Builder, block model.BlockDSLModel, 
 	}
 }
 
-func getSinglePropertyValueConsistent(prop model.BlockPropertyDSLModel) string {
+func _getSinglePropertyValueConsistent(prop model.BlockPropertyDSLModel) string {
 	if prop.ValueMobile != "" {
 		return prop.ValueMobile
 	}
@@ -157,20 +156,20 @@ func getSinglePropertyValueConsistent(prop model.BlockPropertyDSLModel) string {
 	return ""
 }
 
-func formatActionConsistent(builder *strings.Builder, action model.ActionDSLModel, indentLevel int) {
+func _formatActionConsistent(builder *strings.Builder, action model.ActionDSLModel, indentLevel int) {
 	indent := strings.Repeat("    ", indentLevel)
 
 	builder.WriteString("\n")
 	builder.WriteString(fmt.Sprintf("%s.action(event = \"%s\") {\n", indent, action.Event))
 
 	for _, trigger := range action.Triggers {
-		formatTriggerConsistent(builder, trigger, indentLevel+1)
+		_formatTriggerConsistent(builder, trigger, indentLevel+1)
 	}
 
 	builder.WriteString(fmt.Sprintf("%s}\n", indent))
 }
 
-func formatTriggerConsistent(builder *strings.Builder, trigger model.ActionTriggerDSLModel, indentLevel int) {
+func _formatTriggerConsistent(builder *strings.Builder, trigger model.ActionTriggerDSLModel, indentLevel int) {
 	indent := strings.Repeat("    ", indentLevel)
 
 	builder.WriteString(fmt.Sprintf("%strigger(keyType = \"%s\", name = \"%s\"",
@@ -192,7 +191,7 @@ func formatTriggerConsistent(builder *strings.Builder, trigger model.ActionTrigg
 			}
 
 			if strings.Contains(prop.Value, "#SCRIPT") {
-				formattedScript := formatScriptBlock(prop.Value, indentLevel+1)
+				formattedScript := _formatScriptBlock(prop.Value, indentLevel+1)
 				builder.WriteString(fmt.Sprintf("%s = \"%s\"", prop.Key, formattedScript))
 			} else {
 				builder.WriteString(fmt.Sprintf("%s = \"%s\"", prop.Key, prop.Value))
@@ -219,14 +218,14 @@ func formatTriggerConsistent(builder *strings.Builder, trigger model.ActionTrigg
 	if len(trigger.Triggers) > 0 {
 		builder.WriteString("\n")
 		for _, nestedTrigger := range trigger.Triggers {
-			formatTriggerConsistent(builder, nestedTrigger, indentLevel+1)
+			_formatTriggerConsistent(builder, nestedTrigger, indentLevel+1)
 		}
 	}
 
 	builder.WriteString("\n")
 }
 
-func formatScriptBlock(script string, baseIndentLevel int) string {
+func _formatScriptBlock(script string, baseIndentLevel int) string {
 	if !strings.Contains(script, "#SCRIPT") {
 		return script
 	}
@@ -255,12 +254,17 @@ func formatScriptBlock(script string, baseIndentLevel int) string {
 		strings.Repeat("    ", baseIndentLevel))
 }
 
-func parseToFrameDSL(dslString string) (model.FrameDSLModel, error) {
+func _parseToFrameDSL(dslString string) (model.FrameDSLModel, error) {
 	l := lexer.NewLexer(dslString)
-	p := parser.NewParser(l)
+	p := parser.NewParser(l, dslString)
 	frame := p.ParseNBX()
-	if frame == nil {
-		return model.FrameDSLModel{}, errors.New(strings.Join(p.Errors(), "; "))
+
+	errorCollector := p.ErrorCollector()
+	if frame == nil || errorCollector.HasErrors() {
+		if errorCollector.HasErrors() {
+			return model.FrameDSLModel{}, errors.New(errorCollector.FormatAll())
+		}
+		return model.FrameDSLModel{}, errors.New("failed to parse DSL")
 	}
 	return *frame, nil
 }

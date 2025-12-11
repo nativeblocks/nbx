@@ -6,12 +6,16 @@ type FrameDSLModel struct {
 	Type      string             `json:"type"`
 	Variables []VariableDSLModel `json:"variables"`
 	Blocks    []BlockDSLModel    `json:"blocks"`
+	Line      int                `json:"-"`
+	Column    int                `json:"-"`
 }
 
 type VariableDSLModel struct {
-	Key   string `json:"key"`
-	Value string `json:"value"`
-	Type  string `json:"type"`
+	Key    string `json:"key"`
+	Value  string `json:"value"`
+	Type   string `json:"type"`
+	Line   int    `json:"-"`
+	Column int    `json:"-"`
 }
 
 type BlockDSLModel struct {
@@ -25,6 +29,8 @@ type BlockDSLModel struct {
 	Slots              []BlockSlotDSLModel     `json:"slots"`
 	Blocks             []BlockDSLModel         `json:"blocks"`
 	Actions            []ActionDSLModel        `json:"actions"`
+	Line               int                     `json:"-"`
+	Column             int                     `json:"-"`
 }
 
 type BlockPropertyDSLModel struct {
@@ -33,22 +39,30 @@ type BlockPropertyDSLModel struct {
 	ValueTablet  string `json:"valueTablet"`
 	ValueDesktop string `json:"valueDesktop"`
 	Type         string `json:"type"`
+	Line         int    `json:"-"`
+	Column       int    `json:"-"`
 }
 
 type BlockDataDSLModel struct {
-	Key   string `json:"key"`
-	Value string `json:"value"`
-	Type  string `json:"type"`
+	Key    string `json:"key"`
+	Value  string `json:"value"`
+	Type   string `json:"type"`
+	Line   int    `json:"-"`
+	Column int    `json:"-"`
 }
 
 type BlockSlotDSLModel struct {
-	Slot string `json:"slot"`
+	Slot   string `json:"slot"`
+	Line   int    `json:"-"`
+	Column int    `json:"-"`
 }
 
 type ActionDSLModel struct {
 	Key      string                  `json:"key"`
 	Event    string                  `json:"event"`
 	Triggers []ActionTriggerDSLModel `json:"triggers"`
+	Line     int                     `json:"-"`
+	Column   int                     `json:"-"`
 }
 
 type ActionTriggerDSLModel struct {
@@ -59,16 +73,22 @@ type ActionTriggerDSLModel struct {
 	Properties         []TriggerPropertyDSLModel `json:"properties"`
 	Data               []TriggerDataDSLModel     `json:"data"`
 	Triggers           []ActionTriggerDSLModel   `json:"triggers"`
+	Line               int                       `json:"-"`
+	Column             int                       `json:"-"`
 }
 
 type TriggerPropertyDSLModel struct {
-	Key   string `json:"key"`
-	Value string `json:"value"`
-	Type  string `json:"type"`
+	Key    string `json:"key"`
+	Value  string `json:"value"`
+	Type   string `json:"type"`
+	Line   int    `json:"-"`
+	Column int    `json:"-"`
 }
 
 type TriggerDataDSLModel struct {
-	Key   string `json:"key"`
-	Value string `json:"value"`
-	Type  string `json:"type"`
+	Key    string `json:"key"`
+	Value  string `json:"value"`
+	Type   string `json:"type"`
+	Line   int    `json:"-"`
+	Column int    `json:"-"`
 }

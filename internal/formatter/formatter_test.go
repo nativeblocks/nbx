@@ -189,7 +189,7 @@ func TestFormatVariableValueConsistent(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.valueType, func(t *testing.T) {
-			result := formatVariableValueConsistent(tt.value, tt.valueType)
+			result := _formatVariableValueConsistent(tt.value, tt.valueType)
 			if result != tt.expected {
 				t.Errorf("formatVariableValueConsistent(%q, %q) = %q, expected %q",
 					tt.value, tt.valueType, result, tt.expected)
@@ -244,7 +244,7 @@ func TestGetSinglePropertyValueConsistent(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := getSinglePropertyValueConsistent(tt.prop)
+			result := _getSinglePropertyValueConsistent(tt.prop)
 			if result != tt.expected {
 				t.Errorf("getSinglePropertyValueConsistent() = %q, expected %q", result, tt.expected)
 			}
@@ -287,7 +287,7 @@ func TestFormatScriptBlock(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := formatScriptBlock(tt.script, tt.baseIndentLevel)
+			result := _formatScriptBlock(tt.script, tt.baseIndentLevel)
 			if result != tt.expected {
 				t.Errorf("formatScriptBlock() mismatch:\nExpected:\n%s\n\nActual:\n%s", tt.expected, result)
 			}

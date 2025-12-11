@@ -6,6 +6,7 @@ const (
 	TOKEN_ILLEGAL TokenType = iota
 	TOKEN_EOF
 
+	// Literals and identifiers
 	TOKEN_IDENT   // variable names, block types
 	TOKEN_STRING  // "value"
 	TOKEN_BOOLEAN // true, false
@@ -14,6 +15,7 @@ const (
 	TOKEN_FLOAT   // 123.456
 	TOKEN_DOUBLE  // 123.456789 (higher precision)
 
+	// Operators and delimiters
 	TOKEN_ASSIGN // =
 	TOKEN_COLON  // :
 	TOKEN_COMMA  // ,
@@ -23,6 +25,7 @@ const (
 	TOKEN_LBRACE // {
 	TOKEN_RBRACE // }
 
+	// Keywords
 	TOKEN_KEYWORD // keywords: frame, var, slot, trigger, etc.
 )
 
@@ -38,8 +41,8 @@ type Lexer struct {
 	position     int  // current char index
 	readPosition int  // next char index
 	ch           byte // current char
-	line         int
-	column       int
+	line         int  // current line number (1-indexed)
+	column       int  // current column number (1-indexed)
 }
 
 func NewLexer(input string) *Lexer {
@@ -48,10 +51,10 @@ func NewLexer(input string) *Lexer {
 	return l
 }
 
+// NextToken returns the next token from the input stream
 func (l *Lexer) NextToken() Token {
 	l._skipWhitespace()
 
-	// Skip comments
 	if l.ch == '/' && l._peekChar() == '/' {
 		l._skipComment()
 		return l.NextToken()
@@ -102,12 +105,16 @@ func (l *Lexer) NextToken() Token {
 	}
 }
 
+// _readChar advances the lexer to the next character in the input
+// Updates position, line, and column tracking
 func (l *Lexer) _readChar() {
 	if l.readPosition >= len(l.input) {
-		l.ch = 0
+		l.ch = 0 // EOF
 	} else {
 		l.ch = l.input[l.readPosition]
 	}
+
+	// Track line and column numbers
 	if l.ch == '\n' {
 		l.line++
 		l.column = 0
@@ -118,9 +125,10 @@ func (l *Lexer) _readChar() {
 	l.readPosition++
 }
 
+// _peekChar returns the next character without advancing the lexer position
 func (l *Lexer) _peekChar() byte {
 	if l.readPosition >= len(l.input) {
-		return 0
+		return 0 // EOF
 	}
 	return l.input[l.readPosition]
 }
@@ -165,6 +173,8 @@ func (l *Lexer) _readString() Token {
 	startLine, startCol := l.line, l.column
 	l._readChar() // skip initial quote
 	start := l.position
+
+	// Read until closing quote or EOF
 	for l.ch != '"' && l.ch != 0 {
 		l._readChar()
 	}

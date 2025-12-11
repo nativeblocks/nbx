@@ -16,11 +16,11 @@ frame(
 }`
 
 	l := lexer.NewLexer(input)
-	p := NewParser(l)
+	p := NewParser(l, input)
 	frame := p.ParseNBX()
 
 	if frame == nil {
-		t.Fatalf("Expected frame to be parsed, got nil: %v", p.Errors())
+		t.Fatalf("Expected frame to be parsed, got nil: %v", p.ErrorCollector().FormatAll())
 	}
 
 	if frame.Name != "login" {
@@ -45,11 +45,11 @@ frame(
 }
 `
 	l := lexer.NewLexer(input)
-	p := NewParser(l)
+	p := NewParser(l, input)
 	frame := p.ParseNBX()
 
 	if frame == nil {
-		t.Fatalf("Expected frame to be parsed, got nil: %v", p.Errors())
+		t.Fatalf("Expected frame to be parsed, got nil: %v", p.ErrorCollector().FormatAll())
 	}
 
 	if len(frame.Variables) != 3 {
@@ -82,7 +82,7 @@ frame(
 }
 `
 	l := lexer.NewLexer(input)
-	p := NewParser(l)
+	p := NewParser(l, input)
 	frame := p.ParseNBX()
 
 	if len(frame.Blocks) != 1 {
@@ -139,11 +139,11 @@ frame(
 }`
 
 	l := lexer.NewLexer(input)
-	p := NewParser(l)
+	p := NewParser(l, input)
 	frame := p.ParseNBX()
 
 	if frame == nil {
-		t.Fatalf("Expected frame to be parsed, got nil: %v", p.Errors())
+		t.Fatalf("Expected frame to be parsed, got nil: %v", p.ErrorCollector().FormatAll())
 	}
 
 	if frame.Name != "login" {
@@ -193,11 +193,11 @@ frame(
 `
 
 	l := lexer.NewLexer(input)
-	p := NewParser(l)
+	p := NewParser(l, input)
 	frame := p.ParseNBX()
 
 	if frame == nil {
-		t.Fatalf("Expected frame to be parsed, got nil: %v", p.Errors())
+		t.Fatalf("Expected frame to be parsed, got nil: %v", p.ErrorCollector().FormatAll())
 	}
 
 	if frame.Name != "login" {
@@ -230,11 +230,11 @@ frame(
     }
 }`
 	l := lexer.NewLexer(input)
-	p := NewParser(l)
+	p := NewParser(l, input)
 	frame := p.ParseNBX()
 
 	if frame == nil {
-		t.Fatalf("Expected frame to be parsed, got nil: %v", p.Errors())
+		t.Fatalf("Expected frame to be parsed, got nil: %v", p.ErrorCollector().FormatAll())
 	}
 	if len(frame.Blocks) != 1 {
 		t.Fatalf("Expected 1 block, got %d", len(frame.Blocks))
@@ -269,11 +269,11 @@ frame(
     }
 }`
 	l := lexer.NewLexer(input)
-	p := NewParser(l)
+	p := NewParser(l, input)
 	frame := p.ParseNBX()
 
 	if frame == nil {
-		t.Fatalf("Expected frame to be parsed, got nil: %v", p.Errors())
+		t.Fatalf("Expected frame to be parsed, got nil: %v", p.ErrorCollector().FormatAll())
 	}
 	if len(frame.Blocks) != 1 {
 		t.Fatalf("Expected 1 block, got %d", len(frame.Blocks))
@@ -310,11 +310,11 @@ frame(
     block(keyType = "ROOT", key = "root")
 }`
 	l := lexer.NewLexer(input)
-	p := NewParser(l)
+	p := NewParser(l, input)
 	frame := p.ParseNBX()
 
 	if frame == nil {
-		t.Fatalf("Expected frame to be parsed, got nil: %v", p.Errors())
+		t.Fatalf("Expected frame to be parsed, got nil: %v", p.ErrorCollector().FormatAll())
 	}
 	if len(frame.Variables) != 3 {
 		t.Fatalf("Expected 3 variables, got %d", len(frame.Variables))
@@ -431,11 +431,11 @@ frame(
 }`
 
 	l := lexer.NewLexer(input)
-	p := NewParser(l)
+	p := NewParser(l, input)
 	frame := p.ParseNBX()
 
 	if frame == nil {
-		t.Fatalf("Expected frame to be parsed, got nil: %v", p.Errors())
+		t.Fatalf("Expected frame to be parsed, got nil: %v", p.ErrorCollector().FormatAll())
 	}
 	if frame.Name != "welcome" {
 		t.Errorf("Expected name to be 'welcome', got %s", frame.Name)
@@ -565,11 +565,11 @@ frame(
 `
 
 	l := lexer.NewLexer(input)
-	p := NewParser(l)
+	p := NewParser(l, input)
 	frame := p.ParseNBX()
 
 	if frame == nil {
-		t.Fatalf("Expected frame to be parsed, got nil: %v", p.Errors())
+		t.Fatalf("Expected frame to be parsed, got nil: %v", p.ErrorCollector().FormatAll())
 	}
 	if frame.Name != "welcome" {
 		t.Errorf("Expected name to be 'welcome', got %s", frame.Name)

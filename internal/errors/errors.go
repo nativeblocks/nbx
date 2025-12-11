@@ -25,7 +25,7 @@ func (s ErrorSeverity) String() string {
 	}
 }
 
-type NBXError struct {
+type Error struct {
 	Severity    ErrorSeverity
 	Message     string
 	Line        int
@@ -36,7 +36,7 @@ type NBXError struct {
 	Token       *lexer.Token
 }
 
-func (e *NBXError) Format() string {
+func (e *Error) Format() string {
 	var b strings.Builder
 
 	b.WriteString(fmt.Sprintf("%s: %s\n", e.Severity, e.Message))
@@ -73,25 +73,25 @@ func (e *NBXError) Format() string {
 	return b.String()
 }
 
-func (e *NBXError) String() string {
+func (e *Error) String() string {
 	return e.Format()
 }
 
 type ErrorCollector struct {
-	errors   []*NBXError
-	warnings []*NBXError
+	errors   []*Error
+	warnings []*Error
 	source   string
 }
 
 func NewErrorCollector(source string) *ErrorCollector {
 	return &ErrorCollector{
-		errors:   make([]*NBXError, 0),
-		warnings: make([]*NBXError, 0),
+		errors:   make([]*Error, 0),
+		warnings: make([]*Error, 0),
 		source:   source,
 	}
 }
 
-func (ec *ErrorCollector) AddError(err *NBXError) {
+func (ec *ErrorCollector) AddError(err *Error) {
 	if err.SourceLine == "" && ec.source != "" && err.Line > 0 {
 		err.SourceLine = ec.getSourceLine(err.Line)
 	}
@@ -104,7 +104,7 @@ func (ec *ErrorCollector) AddError(err *NBXError) {
 }
 
 func (ec *ErrorCollector) AddSimpleError(message string, line, column int) {
-	ec.AddError(&NBXError{
+	ec.AddError(&Error{
 		Severity: SeverityError,
 		Message:  message,
 		Line:     line,
@@ -113,7 +113,7 @@ func (ec *ErrorCollector) AddSimpleError(message string, line, column int) {
 }
 
 func (ec *ErrorCollector) AddTokenError(message string, token lexer.Token, suggestion string) {
-	ec.AddError(&NBXError{
+	ec.AddError(&Error{
 		Severity:   SeverityError,
 		Message:    message,
 		Line:       token.Line,
@@ -124,7 +124,7 @@ func (ec *ErrorCollector) AddTokenError(message string, token lexer.Token, sugge
 }
 
 func (ec *ErrorCollector) AddWarning(message string, line, column int, suggestion string) {
-	ec.AddError(&NBXError{
+	ec.AddError(&Error{
 		Severity:   SeverityWarning,
 		Message:    message,
 		Line:       line,
@@ -141,16 +141,16 @@ func (ec *ErrorCollector) HasWarnings() bool {
 	return len(ec.warnings) > 0
 }
 
-func (ec *ErrorCollector) Errors() []*NBXError {
+func (ec *ErrorCollector) Errors() []*Error {
 	return ec.errors
 }
 
-func (ec *ErrorCollector) Warnings() []*NBXError {
+func (ec *ErrorCollector) Warnings() []*Error {
 	return ec.warnings
 }
 
-func (ec *ErrorCollector) AllIssues() []*NBXError {
-	all := make([]*NBXError, 0, len(ec.errors)+len(ec.warnings))
+func (ec *ErrorCollector) AllIssues() []*Error {
+	all := make([]*Error, 0, len(ec.errors)+len(ec.warnings))
 	all = append(all, ec.errors...)
 	all = append(all, ec.warnings...)
 	return all
@@ -198,19 +198,19 @@ func (ec *ErrorCollector) getSourceLine(lineNum int) string {
 	return lines[lineNum-1]
 }
 
-func UnexpectedTokenError(expected, got lexer.Token) *NBXError {
-	return &NBXError{
+func UnexpectedTokenError(expected, got lexer.Token) *Error {
+	return &Error{
 		Severity:   SeverityError,
-		Message:    fmt.Sprintf("Expected %s, but got '%s'", tokenTypeToString(expected.Type), got.Literal),
+		Message:    fmt.Sprintf("Expected %s, but got '%s'", _tokenTypeToString(expected.Type), got.Literal),
 		Line:       got.Line,
 		Column:     got.Column,
 		Token:      &got,
-		Suggestion: fmt.Sprintf("Try replacing '%s' with %s", got.Literal, tokenTypeToString(expected.Type)),
+		Suggestion: fmt.Sprintf("Try replacing '%s' with %s", got.Literal, _tokenTypeToString(expected.Type)),
 	}
 }
 
-func UndefinedVariableError(varName string, line, column int, availableVars []string) *NBXError {
-	err := &NBXError{
+func UndefinedVariableError(varName string, line, column int, availableVars []string) *Error {
+	err := &Error{
 		Severity: SeverityError,
 		Message:  fmt.Sprintf("Undefined variable '%s'", varName),
 		Line:     line,
@@ -218,7 +218,7 @@ func UndefinedVariableError(varName string, line, column int, availableVars []st
 	}
 
 	if len(availableVars) > 0 {
-		similar := findSimilar(varName, availableVars)
+		similar := _findSimilar(varName, availableVars)
 		if len(similar) > 0 {
 			err.Suggestion = fmt.Sprintf("Did you mean '%s'?", similar[0])
 		} else {
@@ -233,8 +233,8 @@ func UndefinedVariableError(varName string, line, column int, availableVars []st
 	return err
 }
 
-func TypeMismatchError(expected, got string, line, column int) *NBXError {
-	return &NBXError{
+func TypeMismatchError(expected, got string, line, column int) *Error {
+	return &Error{
 		Severity:   SeverityError,
 		Message:    fmt.Sprintf("Type mismatch: expected %s, got %s", expected, got),
 		Line:       line,
@@ -243,8 +243,8 @@ func TypeMismatchError(expected, got string, line, column int) *NBXError {
 	}
 }
 
-func DuplicateDeclarationError(name string, line, column, firstLine int) *NBXError {
-	return &NBXError{
+func DuplicateDeclarationError(name string, line, column, firstLine int) *Error {
+	return &Error{
 		Severity:   SeverityError,
 		Message:    fmt.Sprintf("Duplicate declaration of '%s'", name),
 		Line:       line,
@@ -256,8 +256,8 @@ func DuplicateDeclarationError(name string, line, column, firstLine int) *NBXErr
 	}
 }
 
-func UnknownAttributeError(attrName, context string, line, column int, validAttrs []string) *NBXError {
-	err := &NBXError{
+func UnknownAttributeError(attrName, context string, line, column int, validAttrs []string) *Error {
+	err := &Error{
 		Severity: SeverityError,
 		Message:  fmt.Sprintf("Unknown attribute '%s' in %s", attrName, context),
 		Line:     line,
@@ -265,7 +265,7 @@ func UnknownAttributeError(attrName, context string, line, column int, validAttr
 	}
 
 	if len(validAttrs) > 0 {
-		similar := findSimilar(attrName, validAttrs)
+		similar := _findSimilar(attrName, validAttrs)
 		if len(similar) > 0 {
 			err.Suggestion = fmt.Sprintf("Did you mean '%s'?", similar[0])
 		}
@@ -277,7 +277,7 @@ func UnknownAttributeError(attrName, context string, line, column int, validAttr
 	return err
 }
 
-func tokenTypeToString(tokenType lexer.TokenType) string {
+func _tokenTypeToString(tokenType lexer.TokenType) string {
 	switch tokenType {
 	case lexer.TOKEN_IDENT:
 		return "an identifier"
@@ -306,7 +306,7 @@ func tokenTypeToString(tokenType lexer.TokenType) string {
 	}
 }
 
-func findSimilar(target string, candidates []string) []string {
+func _findSimilar(target string, candidates []string) []string {
 	type scoredCandidate struct {
 		name  string
 		score int
@@ -314,7 +314,7 @@ func findSimilar(target string, candidates []string) []string {
 
 	scored := make([]scoredCandidate, 0)
 	for _, candidate := range candidates {
-		score := levenshtein(strings.ToLower(target), strings.ToLower(candidate))
+		score := _levenshtein(strings.ToLower(target), strings.ToLower(candidate))
 		if score <= 3 {
 			scored = append(scored, scoredCandidate{candidate, score})
 		}
@@ -340,7 +340,7 @@ func findSimilar(target string, candidates []string) []string {
 	return result
 }
 
-func levenshtein(s1, s2 string) int {
+func _levenshtein(s1, s2 string) int {
 	if len(s1) == 0 {
 		return len(s2)
 	}
