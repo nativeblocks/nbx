@@ -8,23 +8,19 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/nativeblocks/nbx/internal/model"
-	"github.com/xeipuuv/gojsonschema"
+	"github.com/nativeblocks/nbx/internal/validator"
 )
 
-func ToJson(frameDSL model.FrameDSLModel, schema string, frameID string) (model.FrameJson, error) {
-	var validationTarget interface{}
-	if len(frameDSL.Blocks) > 0 && frameDSL.Blocks[0].KeyType == "ROOT" && frameDSL.Blocks[0].Slot == "" {
-		validationDSL := frameDSL
-		validationDSL.Blocks = make([]model.BlockDSLModel, len(frameDSL.Blocks))
-		copy(validationDSL.Blocks, frameDSL.Blocks)
-		validationDSL.Blocks[0].Slot = "null"
-		validationTarget = validationDSL
-	} else {
-		validationTarget = frameDSL
-	}
-
+// ToJson converts a FrameDSLModel to FrameJson with integration validation.
+// blocksJSON and actionsJSON must contain the integration definitions.
+func ToJson(frameDSL model.FrameDSLModel, blocksJSON, actionsJSON, frameID string) (model.FrameJson, error) {
 	if len(frameDSL.Blocks) > 0 && frameDSL.Blocks[0].KeyType != "ROOT" {
 		return model.FrameJson{}, errors.New("first block's keyType must be 'ROOT'")
+	}
+
+	registry, err := validator.LoadIntegrations(blocksJSON, actionsJSON)
+	if err != nil {
+		return model.FrameJson{}, fmt.Errorf("failed to load integrations: %w", err)
 	}
 
 	var frameId = frameID
@@ -80,27 +76,9 @@ func ToJson(frameDSL model.FrameDSLModel, schema string, frameID string) (model.
 		frame.Blocks = []model.BlockJson{}
 	}
 
-	schemaLoader := gojsonschema.NewStringLoader(schema)
-	documentLoader := gojsonschema.NewGoLoader(validationTarget)
-	result, err := gojsonschema.Validate(schemaLoader, documentLoader)
-	if err != nil {
-		return model.FrameJson{}, fmt.Errorf("schema validation error: %w", err)
-	}
-	validationErrors := result.Errors()
-	errorDetails := make([]nbxValidationError, len(validationErrors))
-	if len(validationErrors) > 0 {
-		for i, err := range validationErrors {
-			errorDetails[i] = nbxValidationError{
-				Field:       err.Field(),
-				Description: err.Description(),
-				Value:       err.Value(),
-				Type:        err.Type(),
-			}
-		}
-	}
-
-	if !result.Valid() {
-		return model.FrameJson{}, fmt.Errorf("validation errors: %v", formatValidationErrors(errorDetails, frameDSL)[0])
+	integrationValidator := validator.NewIntegrationValidator(registry)
+	if err := integrationValidator.ValidateFrame(&frameDSL); err != nil {
+		return model.FrameJson{}, err
 	}
 
 	return frame, nil

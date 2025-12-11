@@ -1,0 +1,62 @@
+{
+  "nativeblocks/change_block_property": {
+    "data": [],
+    "events": [
+      {
+        "event": "NEXT"
+      }
+    ],
+    "keyType": "nativeblocks/change_block_property",
+    "properties": [
+      {
+        "key": "blockKey",
+        "value": "",
+        "type": "STRING"
+      },
+      {
+        "key": "propertyKey",
+        "value": "",
+        "type": "STRING"
+      },
+      {
+        "key": "propertyValueDesktop",
+        "value": "",
+        "type": "STRING"
+      },
+      {
+        "key": "propertyValueMobile",
+        "value": "",
+        "type": "STRING"
+      },
+      {
+        "key": "propertyValueTablet",
+        "value": "",
+        "type": "STRING"
+      }
+    ],
+    "version": 1
+  },
+  "nativeblocks/change_variable": {
+    "data": [
+      {
+        "key": "variableKey",
+        "type": "STRING"
+      }
+    ],
+    "events": [
+      {
+        "event": "NEXT"
+      }
+    ],
+    "keyType": "nativeblocks/change_variable",
+    "properties": [
+      {
+        "key": "variableValue",
+        "value": "",
+        "type": "STRING"
+      }
+    ],
+    "version": 1
+  },
+  "schema-version": "2025-12-11 13:19"
+}

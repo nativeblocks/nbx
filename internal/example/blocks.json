@@ -1,0 +1,979 @@
+{
+  "nativeblocks/box": {
+    "data": [],
+    "events": [
+      {
+        "event": "onClick"
+      }
+    ],
+    "keyType": "nativeblocks/box",
+    "properties": [
+      {
+        "key": "radiusTopEnd",
+        "value": "0.0",
+        "type": "STRING"
+      },
+      {
+        "key": "width",
+        "value": "wrap",
+        "type": "STRING"
+      },
+      {
+        "key": "height",
+        "value": "wrap",
+        "type": "STRING"
+      },
+      {
+        "key": "weight",
+        "value": "0F",
+        "type": "FLOAT"
+      },
+      {
+        "key": "paddingStart",
+        "value": "0.0",
+        "type": "STRING"
+      },
+      {
+        "key": "paddingTop",
+        "value": "0.0",
+        "type": "STRING"
+      },
+      {
+        "key": "paddingEnd",
+        "value": "0.0",
+        "type": "STRING"
+      },
+      {
+        "key": "paddingBottom",
+        "value": "0.0",
+        "type": "STRING"
+      },
+      {
+        "key": "backgroundColor",
+        "value": "#00000000",
+        "type": "STRING"
+      },
+      {
+        "key": "borderColor",
+        "value": "#00000000",
+        "type": "STRING"
+      },
+      {
+        "key": "borderWidth",
+        "value": "0",
+        "type": "STRING"
+      },
+      {
+        "key": "radiusTopStart",
+        "value": "0.0",
+        "type": "STRING"
+      },
+      {
+        "key": "radiusBottomStart",
+        "value": "0.0",
+        "type": "STRING"
+      },
+      {
+        "key": "radiusBottomEnd",
+        "value": "0.0",
+        "type": "STRING"
+      },
+      {
+        "key": "verticalAlignment",
+        "value": "center",
+        "type": "STRING"
+      }
+    ],
+    "slots": [
+      {
+        "slot": "content"
+      }
+    ],
+    "version": 1
+  },
+  "nativeblocks/button": {
+    "data": [
+      {
+        "key": "enable",
+        "type": "BOOLEAN"
+      },
+      {
+        "key": "text",
+        "type": "STRING"
+      }
+    ],
+    "events": [
+      {
+        "event": "onClick"
+      }
+    ],
+    "keyType": "nativeblocks/button",
+    "properties": [
+      {
+        "key": "backgroundColor",
+        "value": "#ff000ff0",
+        "type": "STRING"
+      },
+      {
+        "key": "borderColor",
+        "value": "#00000000",
+        "type": "STRING"
+      },
+      {
+        "key": "borderWidth",
+        "value": "0",
+        "type": "DOUBLE"
+      },
+      {
+        "key": "contentPaddingBottom",
+        "value": "4",
+        "type": "DOUBLE"
+      },
+      {
+        "key": "contentPaddingLeading",
+        "value": "4",
+        "type": "DOUBLE"
+      },
+      {
+        "key": "contentPaddingTop",
+        "value": "4",
+        "type": "DOUBLE"
+      },
+      {
+        "key": "contentPaddingTrailing",
+        "value": "4",
+        "type": "DOUBLE"
+      },
+      {
+        "key": "disablBorderColor",
+        "value": "#00000000",
+        "type": "STRING"
+      },
+      {
+        "key": "disableBackgroundColor",
+        "value": "#ffc1c1c1",
+        "type": "STRING"
+      },
+      {
+        "key": "disableForegroundColor",
+        "value": "#ff000000",
+        "type": "STRING"
+      },
+      {
+        "key": "fontDesign",
+        "value": "default",
+        "type": "STRING"
+      },
+      {
+        "key": "fontFamily",
+        "value": "system",
+        "type": "STRING"
+      },
+      {
+        "key": "fontSize",
+        "value": "16",
+        "type": "DOUBLE"
+      },
+      {
+        "key": "fontWeight",
+        "value": "regular",
+        "type": "STRING"
+      },
+      {
+        "key": "foregroundColor",
+        "value": "#ffffffff",
+        "type": "STRING"
+      },
+      {
+        "key": "height",
+        "value": "auto",
+        "type": "STRING"
+      },
+      {
+        "key": "multilineTextAlignment",
+        "value": "center",
+        "type": "STRING"
+      },
+      {
+        "key": "paddingBottom",
+        "value": "0",
+        "type": "DOUBLE"
+      },
+      {
+        "key": "paddingLeading",
+        "value": "0",
+        "type": "DOUBLE"
+      },
+      {
+        "key": "paddingTop",
+        "value": "0",
+        "type": "DOUBLE"
+      },
+      {
+        "key": "paddingTrailing",
+        "value": "0",
+        "type": "DOUBLE"
+      },
+      {
+        "key": "radiusBottomEnd",
+        "value": "0.0",
+        "type": "DOUBLE"
+      },
+      {
+        "key": "radiusBottomStart",
+        "value": "0.0",
+        "type": "DOUBLE"
+      },
+      {
+        "key": "radiusTopEnd",
+        "value": "0.0",
+        "type": "DOUBLE"
+      },
+      {
+        "key": "radiusTopStart",
+        "value": "0.0",
+        "type": "DOUBLE"
+      },
+      {
+        "key": "weight",
+        "value": "0.0",
+        "type": "DOUBLE"
+      },
+      {
+        "key": "width",
+        "value": "auto",
+        "type": "STRING"
+      }
+    ],
+    "slots": [
+      {
+        "slot": "leadingIcon"
+      },
+      {
+        "slot": "trailingIcon"
+      }
+    ],
+    "version": 1
+  },
+  "nativeblocks/column": {
+    "data": [
+      {
+        "key": "length",
+        "type": "INT"
+      }
+    ],
+    "events": [
+      {
+        "event": "onClick"
+      }
+    ],
+    "keyType": "nativeblocks/column",
+    "properties": [
+      {
+        "key": "width",
+        "value": "wrap",
+        "type": "STRING"
+      },
+      {
+        "key": "height",
+        "value": "wrap",
+        "type": "STRING"
+      },
+      {
+        "key": "weight",
+        "value": "0F",
+        "type": "FLOAT"
+      },
+      {
+        "key": "paddingStart",
+        "value": "0.0",
+        "type": "STRING"
+      },
+      {
+        "key": "paddingTop",
+        "value": "0.0",
+        "type": "STRING"
+      },
+      {
+        "key": "paddingEnd",
+        "value": "0.0",
+        "type": "STRING"
+      },
+      {
+        "key": "paddingBottom",
+        "value": "0.0",
+        "type": "STRING"
+      },
+      {
+        "key": "backgroundColor",
+        "value": "#00000000",
+        "type": "STRING"
+      },
+      {
+        "key": "borderColor",
+        "value": "#00000000",
+        "type": "STRING"
+      },
+      {
+        "key": "borderWidth",
+        "value": "0",
+        "type": "STRING"
+      },
+      {
+        "key": "radiusTopStart",
+        "value": "0.0",
+        "type": "STRING"
+      },
+      {
+        "key": "radiusTopEnd",
+        "value": "0.0",
+        "type": "STRING"
+      },
+      {
+        "key": "radiusBottomStart",
+        "value": "0.0",
+        "type": "STRING"
+      },
+      {
+        "key": "radiusBottomEnd",
+        "value": "0.0",
+        "type": "STRING"
+      },
+      {
+        "key": "verticalArrangement",
+        "value": "top",
+        "type": "STRING"
+      },
+      {
+        "key": "horizontalAlignment",
+        "value": "start",
+        "type": "STRING"
+      }
+    ],
+    "slots": [
+      {
+        "slot": "content"
+      }
+    ],
+    "version": 1
+  },
+  "nativeblocks/image": {
+    "data": [
+      {
+        "key": "contentDescription",
+        "type": "STRING"
+      },
+      {
+        "key": "imageUrl",
+        "type": "STRING"
+      }
+    ],
+    "events": [],
+    "keyType": "nativeblocks/image",
+    "properties": [
+      {
+        "key": "height",
+        "value": "wrap",
+        "type": "STRING"
+      },
+      {
+        "key": "radiusBottomEnd",
+        "value": "0.0",
+        "type": "STRING"
+      },
+      {
+        "key": "radiusBottomStart",
+        "value": "0.0",
+        "type": "STRING"
+      },
+      {
+        "key": "radiusTopEnd",
+        "value": "0.0",
+        "type": "STRING"
+      },
+      {
+        "key": "radiusTopStart",
+        "value": "0.0",
+        "type": "STRING"
+      },
+      {
+        "key": "scaleType",
+        "value": "none",
+        "type": "STRING"
+      },
+      {
+        "key": "weight",
+        "value": "0F",
+        "type": "FLOAT"
+      },
+      {
+        "key": "width",
+        "value": "wrap",
+        "type": "STRING"
+      }
+    ],
+    "slots": [],
+    "version": 1
+  },
+  "nativeblocks/lazy_column": {
+    "data": [
+      {
+        "key": "length",
+        "type": "INT"
+      }
+    ],
+    "events": [
+      {
+        "event": "onClick"
+      }
+    ],
+    "keyType": "nativeblocks/lazy_column",
+    "properties": [
+      {
+        "key": "width",
+        "value": "wrap",
+        "type": "STRING"
+      },
+      {
+        "key": "height",
+        "value": "wrap",
+        "type": "STRING"
+      },
+      {
+        "key": "weight",
+        "value": "0F",
+        "type": "FLOAT"
+      },
+      {
+        "key": "paddingStart",
+        "value": "0.0",
+        "type": "STRING"
+      },
+      {
+        "key": "paddingTop",
+        "value": "0.0",
+        "type": "STRING"
+      },
+      {
+        "key": "paddingEnd",
+        "value": "0.0",
+        "type": "STRING"
+      },
+      {
+        "key": "paddingBottom",
+        "value": "0.0",
+        "type": "STRING"
+      },
+      {
+        "key": "backgroundColor",
+        "value": "#00000000",
+        "type": "STRING"
+      },
+      {
+        "key": "borderColor",
+        "value": "#00000000",
+        "type": "STRING"
+      },
+      {
+        "key": "borderWidth",
+        "value": "0",
+        "type": "STRING"
+      },
+      {
+        "key": "radiusTopStart",
+        "value": "0.0",
+        "type": "STRING"
+      },
+      {
+        "key": "radiusTopEnd",
+        "value": "0.0",
+        "type": "STRING"
+      },
+      {
+        "key": "radiusBottomStart",
+        "value": "0.0",
+        "type": "STRING"
+      },
+      {
+        "key": "radiusBottomEnd",
+        "value": "0.0",
+        "type": "STRING"
+      },
+      {
+        "key": "verticalArrangement",
+        "value": "top",
+        "type": "STRING"
+      },
+      {
+        "key": "horizontalAlignment",
+        "value": "start",
+        "type": "STRING"
+      }
+    ],
+    "slots": [
+      {
+        "slot": "content"
+      }
+    ],
+    "version": 1
+  },
+  "nativeblocks/lazy_row": {
+    "data": [
+      {
+        "key": "length",
+        "type": "INT"
+      }
+    ],
+    "events": [
+      {
+        "event": "onClick"
+      }
+    ],
+    "keyType": "nativeblocks/lazy_row",
+    "properties": [
+      {
+        "key": "backgroundColor",
+        "value": "#00000000",
+        "type": "STRING"
+      },
+      {
+        "key": "borderColor",
+        "value": "#00000000",
+        "type": "STRING"
+      },
+      {
+        "key": "borderWidth",
+        "value": "0",
+        "type": "STRING"
+      },
+      {
+        "key": "height",
+        "value": "wrap",
+        "type": "STRING"
+      },
+      {
+        "key": "horizontalArrangement",
+        "value": "start",
+        "type": "STRING"
+      },
+      {
+        "key": "paddingBottom",
+        "value": "0.0",
+        "type": "STRING"
+      },
+      {
+        "key": "paddingEnd",
+        "value": "0.0",
+        "type": "STRING"
+      },
+      {
+        "key": "paddingStart",
+        "value": "0.0",
+        "type": "STRING"
+      },
+      {
+        "key": "paddingTop",
+        "value": "0.0",
+        "type": "STRING"
+      },
+      {
+        "key": "radiusBottomEnd",
+        "value": "0.0",
+        "type": "STRING"
+      },
+      {
+        "key": "radiusBottomStart",
+        "value": "0.0",
+        "type": "STRING"
+      },
+      {
+        "key": "radiusTopEnd",
+        "value": "0.0",
+        "type": "STRING"
+      },
+      {
+        "key": "radiusTopStart",
+        "value": "0.0",
+        "type": "STRING"
+      },
+      {
+        "key": "verticalAlignment",
+        "value": "top",
+        "type": "STRING"
+      },
+      {
+        "key": "weight",
+        "value": "0F",
+        "type": "FLOAT"
+      },
+      {
+        "key": "width",
+        "value": "wrap",
+        "type": "STRING"
+      }
+    ],
+    "slots": [
+      {
+        "slot": "content"
+      }
+    ],
+    "version": 1
+  },
+  "nativeblocks/row": {
+    "data": [
+      {
+        "key": "length",
+        "type": "INT"
+      }
+    ],
+    "events": [
+      {
+        "event": "onClick"
+      }
+    ],
+    "keyType": "nativeblocks/row",
+    "properties": [
+      {
+        "key": "width",
+        "value": "wrap",
+        "type": "STRING"
+      },
+      {
+        "key": "height",
+        "value": "wrap",
+        "type": "STRING"
+      },
+      {
+        "key": "weight",
+        "value": "0F",
+        "type": "FLOAT"
+      },
+      {
+        "key": "paddingStart",
+        "value": "0.0",
+        "type": "STRING"
+      },
+      {
+        "key": "paddingTop",
+        "value": "0.0",
+        "type": "STRING"
+      },
+      {
+        "key": "paddingEnd",
+        "value": "0.0",
+        "type": "STRING"
+      },
+      {
+        "key": "paddingBottom",
+        "value": "0.0",
+        "type": "STRING"
+      },
+      {
+        "key": "backgroundColor",
+        "value": "#00000000",
+        "type": "STRING"
+      },
+      {
+        "key": "borderColor",
+        "value": "#00000000",
+        "type": "STRING"
+      },
+      {
+        "key": "borderWidth",
+        "value": "0",
+        "type": "STRING"
+      },
+      {
+        "key": "radiusTopStart",
+        "value": "0.0",
+        "type": "STRING"
+      },
+      {
+        "key": "radiusTopEnd",
+        "value": "0.0",
+        "type": "STRING"
+      },
+      {
+        "key": "radiusBottomStart",
+        "value": "0.0",
+        "type": "STRING"
+      },
+      {
+        "key": "radiusBottomEnd",
+        "value": "0.0",
+        "type": "STRING"
+      },
+      {
+        "key": "horizontalArrangement",
+        "value": "start",
+        "type": "STRING"
+      },
+      {
+        "key": "verticalAlignment",
+        "value": "top",
+        "type": "STRING"
+      }
+    ],
+    "slots": [
+      {
+        "slot": "content"
+      }
+    ],
+    "version": 1
+  },
+  "nativeblocks/spacer": {
+    "data": [],
+    "events": [],
+    "keyType": "nativeblocks/spacer",
+    "properties": [
+      {
+        "key": "height",
+        "value": "wrap",
+        "type": "STRING"
+      },
+      {
+        "key": "weight",
+        "value": "0F",
+        "type": "FLOAT"
+      },
+      {
+        "key": "width",
+        "value": "wrap",
+        "type": "STRING"
+      }
+    ],
+    "slots": [],
+    "version": 1
+  },
+  "nativeblocks/text": {
+    "data": [
+      {
+        "key": "text",
+        "type": "STRING"
+      }
+    ],
+    "events": [],
+    "keyType": "nativeblocks/text",
+    "properties": [
+      {
+        "key": "fontFamily",
+        "value": "default",
+        "type": "STRING"
+      },
+      {
+        "key": "fontSize",
+        "value": "14",
+        "type": "STRING"
+      },
+      {
+        "key": "fontWeight",
+        "value": "normal",
+        "type": "STRING"
+      },
+      {
+        "key": "height",
+        "value": "wrap",
+        "type": "STRING"
+      },
+      {
+        "key": "maxLines",
+        "value": "1",
+        "type": "INT"
+      },
+      {
+        "key": "minLines",
+        "value": "1",
+        "type": "INT"
+      },
+      {
+        "key": "overflow",
+        "value": "clip",
+        "type": "STRING"
+      },
+      {
+        "key": "textAlign",
+        "value": "start",
+        "type": "STRING"
+      },
+      {
+        "key": "textColor",
+        "value": "#ff000000",
+        "type": "STRING"
+      },
+      {
+        "key": "weight",
+        "value": "0F",
+        "type": "FLOAT"
+      },
+      {
+        "key": "width",
+        "value": "wrap",
+        "type": "STRING"
+      }
+    ],
+    "slots": [],
+    "version": 1
+  },
+  "nativeblocks/text_field": {
+    "data": [
+      {
+        "key": "enable",
+        "type": "BOOLEAN"
+      },
+      {
+        "key": "label",
+        "type": "STRING"
+      },
+      {
+        "key": "placeholder",
+        "type": "STRING"
+      },
+      {
+        "key": "readOnly",
+        "type": "BOOLEAN"
+      },
+      {
+        "key": "text",
+        "type": "STRING"
+      }
+    ],
+    "events": [
+      {
+        "event": "onTextChange"
+      }
+    ],
+    "keyType": "nativeblocks/text_field",
+    "properties": [
+      {
+        "key": "radiusTopStart",
+        "value": "4.0",
+        "type": "STRING"
+      },
+      {
+        "key": "radiusTopEnd",
+        "value": "4.0",
+        "type": "STRING"
+      },
+      {
+        "key": "radiusBottomStart",
+        "value": "4.0",
+        "type": "STRING"
+      },
+      {
+        "key": "paddingStart",
+        "value": "4.0",
+        "type": "STRING"
+      },
+      {
+        "key": "width",
+        "value": "wrap",
+        "type": "STRING"
+      },
+      {
+        "key": "height",
+        "value": "wrap",
+        "type": "STRING"
+      },
+      {
+        "key": "weight",
+        "value": "0F",
+        "type": "FLOAT"
+      },
+      {
+        "key": "contentColor",
+        "value": "#FFFFFFFF",
+        "type": "STRING"
+      },
+      {
+        "key": "disabledContentColor",
+        "value": "#FFFFFFB2",
+        "type": "STRING"
+      },
+      {
+        "key": "backgroundColor",
+        "value": "#FF212121",
+        "type": "STRING"
+      },
+      {
+        "key": "disableBackgroundColor",
+        "value": "#212121B2",
+        "type": "STRING"
+      },
+      {
+        "key": "borderColor",
+        "value": "#FF212121",
+        "type": "STRING"
+      },
+      {
+        "key": "disableBorderColor",
+        "value": "#212121B2",
+        "type": "STRING"
+      },
+      {
+        "key": "borderFocusColor",
+        "value": "#FF212121",
+        "type": "STRING"
+      },
+      {
+        "key": "keyboardType",
+        "value": "text",
+        "type": "STRING"
+      },
+      {
+        "key": "paddingTop",
+        "value": "4.0",
+        "type": "STRING"
+      },
+      {
+        "key": "radiusBottomEnd",
+        "value": "4.0",
+        "type": "STRING"
+      },
+      {
+        "key": "paddingEnd",
+        "value": "4.0",
+        "type": "STRING"
+      },
+      {
+        "key": "paddingBottom",
+        "value": "4.0",
+        "type": "STRING"
+      },
+      {
+        "key": "fontSize",
+        "value": "14",
+        "type": "STRING"
+      },
+      {
+        "key": "fontFamily",
+        "value": "default",
+        "type": "STRING"
+      },
+      {
+        "key": "textAlign",
+        "value": "start",
+        "type": "STRING"
+      },
+      {
+        "key": "fontWeight",
+        "value": "normal",
+        "type": "STRING"
+      },
+      {
+        "key": "maxLines",
+        "value": "1",
+        "type": "INT"
+      }
+    ],
+    "slots": [
+      {
+        "slot": "onLeadingIcon"
+      },
+      {
+        "slot": "onTrailingIcon"
+      }
+    ],
+    "version": 1
+  },
+  "schema-version": "2025-12-11 13:19"
+}

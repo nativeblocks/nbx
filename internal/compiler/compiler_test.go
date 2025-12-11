@@ -1,231 +1,26 @@
-package test
+package compiler
 
 import (
-	"github.com/nativeblocks/nbx"
-	"github.com/nativeblocks/nbx/internal/compiler"
+	"os"
+	"strings"
 	"testing"
+
+	"github.com/nativeblocks/nbx/internal/formatter"
+	"github.com/nativeblocks/nbx/internal/lexer"
+	"github.com/nativeblocks/nbx/internal/parser"
+	"github.com/nativeblocks/nbx/internal/validator"
 )
 
 func TestToDsl(t *testing.T) {
-	schema := `
-{
-  "$schema" : "http://json-schema.org/draft-07/schema#",
-  "schema-version" : "projectId_0197d45c-90cf-7c11-a55e-edd2cef8db42",
-  "type" : "object",
-  "required" : [ "name", "route", "type", "variables", "blocks" ],
-  "properties" : {
-    "blocks" : {
-      "items" : {
-        "$ref" : "#/definitions/block"
-      },
-      "maxItems" : 1,
-      "type" : "array"
-    },
-    "name" : {
-      "type" : "string"
-    },
-    "route" : {
-      "type" : "string"
-    },
-    "type" : {
-      "enum" : [ "FRAME", "BOTTOM_SHEET", "DIALOG" ],
-      "type" : "string"
-    },
-    "variables" : {
-      "items" : {
-        "properties" : {
-          "key" : {
-            "type" : "string"
-          },
-          "type" : {
-            "enum" : [ "STRING", "INT", "LONG", "DOUBLE", "FLOAT", "BOOLEAN" ],
-            "type" : "string"
-          },
-          "value" : {
-            "type" : "string"
-          }
-        },
-        "required" : [ "key", "value", "type" ],
-        "type" : "object"
-      },
-      "type" : "array",
-      "uniqueItems" : true
-    }
-  },
-  "definitions" : {
-    "block" : {
-      "properties" : {
-        "actions" : {
-          "items" : {
-            "properties" : {
-              "event" : {
-                "enum" : [ "onAppear", "onDisappear", "onClick" ],
-                "type" : "string"
-              },
-              "triggers" : {
-                "items" : {
-                  "$ref" : "#/definitions/trigger"
-                },
-                "type" : "array"
-              }
-            },
-            "required" : [ "event", "triggers" ],
-            "type" : "object"
-          },
-          "type" : "array"
-        },
-        "blocks" : {
-          "items" : {
-            "$ref" : "#/definitions/block"
-          },
-          "type" : "array"
-        },
-        "data" : {
-          "items" : {
-            "properties" : {
-              "key" : {
-                "enum" : [ ],
-                "type" : "string"
-              },
-              "type" : {
-                "enum" : [ "STRING", "INT", "LONG", "DOUBLE", "FLOAT", "BOOLEAN" ],
-                "type" : "string"
-              },
-              "value" : {
-                "type" : "string"
-              }
-            },
-            "required" : [ "key", "value", "type" ],
-            "type" : "object"
-          },
-          "type" : "array"
-        },
-        "integrationVersion" : {
-          "type" : "integer"
-        },
-        "key" : {
-          "type" : "string"
-        },
-        "keyType" : {
-          "enum" : [ "ROOT", "nativeblocks/column", "nativeblocks/row", "nativeblocks/text", "nativeblocks/button", "nativeblocks/image" ],
-          "type" : "string"
-        },
-        "properties" : {
-          "items" : {
-            "properties" : {
-              "key" : {
-                "type" : "string"
-              },
-              "type" : {
-                "enum" : [ "STRING", "INT", "LONG", "DOUBLE", "FLOAT", "BOOLEAN" ],
-                "type" : "string"
-              },
-              "valueDesktop" : {
-                "type" : "string"
-              },
-              "valueMobile" : {
-                "type" : "string"
-              },
-              "valueTablet" : {
-                "type" : "string"
-              }
-            },
-            "required" : [ "key", "valueMobile", "valueTablet", "valueDesktop", "type" ],
-            "type" : "object"
-          },
-          "type" : "array"
-        },
-        "slot" : {
-          "type" : "string"
-        },
-        "slots" : {
-          "items" : {
-            "properties" : {
-              "slot" : {
-                "enum" : [ "content" ],
-                "type" : "string"
-              }
-            },
-            "type" : "object"
-          },
-          "type" : "array"
-        },
-        "visibilityKey" : {
-          "type" : "string"
-        }
-      },
-      "required" : [ "keyType", "key", "visibilityKey", "slot", "slots", "integrationVersion", "data", "properties", "actions", "blocks" ],
-      "type" : "object"
-    },
-    "trigger" : {
-      "properties" : {
-        "data" : {
-          "items" : {
-            "properties" : {
-              "key" : {
-                "enum" : [ ],
-                "type" : "string"
-              },
-              "type" : {
-                "enum" : [ "STRING", "INT", "LONG", "DOUBLE", "FLOAT", "BOOLEAN" ],
-                "type" : "string"
-              },
-              "value" : {
-                "type" : "string"
-              }
-            },
-            "required" : [ "key", "value", "type" ],
-            "type" : "object"
-          },
-          "type" : "array"
-        },
-        "integrationVersion" : {
-          "type" : "integer"
-        },
-        "keyType" : {
-          "enum" : [ "nativeblocks/change_variable" ],
-          "type" : "string"
-        },
-        "name" : {
-          "type" : "string"
-        },
-        "properties" : {
-          "items" : {
-            "properties" : {
-              "key" : {
-                "enum" : [ ],
-                "type" : "string"
-              },
-              "type" : {
-                "enum" : [ "STRING", "INT", "LONG", "DOUBLE", "FLOAT", "BOOLEAN" ],
-                "type" : "string"
-              },
-              "value" : {
-                "type" : "string"
-              }
-            },
-            "required" : [ "key", "value", "type" ],
-            "type" : "object"
-          },
-          "type" : "array"
-        },
-        "then" : {
-          "enum" : [ "NEXT", "END", "SUCCESS", "FAILURE" ],
-          "type" : "string"
-        },
-        "triggers" : {
-          "items" : {
-            "$ref" : "#/definitions/trigger"
-          },
-          "type" : "array"
-        }
-      },
-      "required" : [ "keyType", "then", "name", "integrationVersion", "properties", "data", "triggers" ],
-      "type" : "object"
-    }
-  }
-}
-`
+	blocksJSON, err := os.ReadFile("../example/blocks.json")
+	if err != nil {
+		t.Fatalf("Failed to read blocks.json: %v", err)
+	}
+
+	actionsJSON, err := os.ReadFile("../example/actions.json")
+	if err != nil {
+		t.Fatalf("Failed to read actions.json: %v", err)
+	}
 
 	dsl := `
 frame(
@@ -324,14 +119,23 @@ frame(
     }
 }`
 
-	frameDSL, err := nbx.Parse(dsl)
-	if err != nil {
-		t.Fatalf("Failed to parse DSL: %v", err)
+	l := lexer.NewLexer(dsl)
+	p := parser.NewParser(l, dsl)
+	frameDSL := p.ParseNBX()
+
+	errorCollector := p.ErrorCollector()
+	if frameDSL == nil || errorCollector.HasErrors() {
+		t.Fatalf("Failed to parse DSL: %v", errorCollector.FormatAll())
 	}
 
-	frameJson, err := compiler.ToJson(frameDSL, schema, "")
-	if err != nil {
-		t.Fatalf("%v", err)
+	collector, _ := validator.ValidateWithSource(frameDSL, dsl)
+	if collector != nil && collector.HasErrors() {
+		t.Fatalf("Validation failed: %v", collector.FormatAll())
+	}
+
+	frameJson, nbxErrs := ToJson(*frameDSL, string(blocksJSON), string(actionsJSON), "")
+	if nbxErrs != nil {
+		t.Fatalf("%v", nbxErrs)
 	}
 
 	if frameJson.Name != "welcome" {
@@ -354,22 +158,74 @@ frame(
     block(keyType = "ROOT", key = "root")
 }`
 
-	invalidFrameDSL, err := nbx.Parse(invalidDsl)
-	if err != nil {
-		t.Fatalf("Failed to parse invalid DSL: %v", err)
+	l2 := lexer.NewLexer(invalidDsl)
+	p2 := parser.NewParser(l2, invalidDsl)
+	invalidFrameDSL := p2.ParseNBX()
+
+	errorCollector2 := p2.ErrorCollector()
+	if invalidFrameDSL == nil || errorCollector2.HasErrors() {
+		t.Fatalf("Failed to parse invalid DSL: %v", errorCollector2.FormatAll())
 	}
 
-	_, err = compiler.ToJson(invalidFrameDSL, schema, "")
-	if err != nil {
-		t.Error("Expected no error but error", err)
+	collector2, _ := validator.ValidateWithSource(invalidFrameDSL, invalidDsl)
+	if collector2 != nil && collector2.HasErrors() {
+		t.Fatalf("Validation failed: %v", collector2.FormatAll())
+	}
+
+	_, nbxErrs = ToJson(*invalidFrameDSL, string(blocksJSON), string(actionsJSON), "")
+	if nbxErrs != nil {
+		t.Error("Expected no error but got error", nbxErrs)
 	}
 
 	customID := "custom-frame-id"
-	frameJsonWithID, err := compiler.ToJson(frameDSL, schema, customID)
-	if err != nil {
-		t.Fatalf("Failed to convert to JSON with custom ID: %v", err)
+	frameJsonWithID, nbxErrs := ToJson(*frameDSL, string(blocksJSON), string(actionsJSON), customID)
+	if nbxErrs != nil {
+		t.Fatalf("Failed to convert to JSON with custom ID: %v", nbxErrs)
 	}
 	if frameJsonWithID.Id != customID {
 		t.Errorf("Expected frame ID '%s', got '%s'", customID, frameJsonWithID.Id)
 	}
+}
+
+func TestToString(t *testing.T) {
+	content, err := os.ReadFile("../example/welcome_android.nbx")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	originalDSL := string(content)
+
+	l := lexer.NewLexer(originalDSL)
+	p := parser.NewParser(l, originalDSL)
+	dslModel := p.ParseNBX()
+
+	errorCollector := p.ErrorCollector()
+	if dslModel == nil || errorCollector.HasErrors() {
+		t.Fatal("Parse error:", errorCollector.FormatAll())
+	}
+
+	collector, _ := validator.ValidateWithSource(dslModel, originalDSL)
+	if collector != nil && collector.HasErrors() {
+		t.Fatal("Validation failed:", collector.FormatAll())
+	}
+
+	reconstructedDSL := formatter.FormatFrameDSL(*dslModel)
+
+	t.Logf("=== ORIGINAL DSL ===\n%s", originalDSL)
+	t.Logf("\n=== RECONSTRUCTED DSL ===\n%s", reconstructedDSL)
+
+	if strings.TrimSpace(originalDSL) == strings.TrimSpace(reconstructedDSL) {
+		t.Log("originalDsl and stringify dsl are identical")
+	}
+
+	l2 := lexer.NewLexer(reconstructedDSL)
+	p2 := parser.NewParser(l2, reconstructedDSL)
+	reconstructedModel := p2.ParseNBX()
+
+	errorCollector2 := p2.ErrorCollector()
+	if reconstructedModel == nil || errorCollector2.HasErrors() {
+		t.Fatal("Reconstructed DSL cannot be parsed:", errorCollector2.FormatAll())
+	}
+
+	t.Log("Reconstructed DSL is valid and parseable!")
 }
