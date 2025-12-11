@@ -11,7 +11,7 @@ import (
 	"github.com/nativeblocks/nbx/internal/parser"
 )
 
-func Format(dslString string) (string, []*errors.Error) {
+func Format(dslString string) (string, []errors.Error) {
 	frame, errs := _parseToFrameDSL(dslString)
 	if len(errs) > 0 {
 		return "", errs
@@ -254,14 +254,20 @@ func _formatScriptBlock(script string, baseIndentLevel int) string {
 		strings.Repeat("    ", baseIndentLevel))
 }
 
-func _parseToFrameDSL(dslString string) (model.FrameDSLModel, []*errors.Error) {
+func _parseToFrameDSL(dslString string) (model.FrameDSLModel, []errors.Error) {
 	l := lexer.NewLexer(dslString)
 	p := parser.NewParser(l, dslString)
 	frame := p.ParseNBX()
 
 	errorCollector := p.ErrorCollector()
 	if frame == nil || errorCollector.HasErrors() {
-		return model.FrameDSLModel{}, errorCollector.Errors()
+		var errs []errors.Error
+		for _, e := range errorCollector.Errors() {
+			if e != nil {
+				errs = append(errs, *e)
+			}
+		}
+		return model.FrameDSLModel{}, errs
 	}
 	return *frame, nil
 }
