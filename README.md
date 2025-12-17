@@ -1,10 +1,17 @@
 # NBX
 
-A Go library to parse and convert the Nativeblocks eXchange (NBX) Domain-Specific Language (DSL) for describing UI frames, variables, blocks, slots, actions, and triggers to structured JSON, and vice versa.
+A Go library to parse and convert the Nativeblocks (NBX) format for describing UI frames, variables, blocks, slots,
+actions, and triggers to structured JSON.
 
 ## What is NBX?
 
-NBX lets you define UI screens, layouts, and their logic in a human-readable DSL text format, which can be converted to JSON for further processing (codegen, cross-platform, rendering). Conversion is bidirectional: NBX DSL ⇄ JSON.
+NBX lets you define UI screens, layouts, and their logic in two human-readable formats:
+
+- **DSL format** (`.nbx`) - A concise, code-like syntax
+- **XML format** (`.xml`) - A familiar XML-based syntax
+
+Both formats can be converted to JSON for further processing (codegen, cross-platform, rendering). Conversion is
+bidirectional: NBX DSL ⇄ JSON ⇄ XML.
 
 ---
 
@@ -15,10 +22,14 @@ NBX lets you define UI screens, layouts, and their logic in a human-readable DSL
 - **Block**: UI element such as containers, buttons, inputs, images, etc. Blocks can be nested.
 - **Slot**: Named regions in a block to inject other blocks (“children” into layouts).
 - **Action**: Response logic to UI events (e.g., onClick, onChange). Belongs to a Block.
-- **Trigger**: The invocation of an effect (function) in response to an event inside an Action, Triggers can conditionally run more triggers via `.then("NEXT") { ... }` blocks, for handling success, failure, or custom logic.
+- **Trigger**: The invocation of an effect (function) in response to an event inside an Action, Triggers can
+  conditionally run more triggers via `.then("NEXT") { ... }` blocks, for handling success, failure, or custom logic.
+
 ---
 
-## Example
+## Examples
+
+### DSL Format
 
 Example NBX DSL describing a login UI with logic:
 
@@ -56,31 +67,76 @@ frame(
     }
 }
 ```
+
+### XML Format
+
+The same login UI in XML format:
+
+```xml
+
+<frame name="login" route="/login">
+    <var key="visible" type="BOOLEAN" value="true"/>
+    <var key="username" type="STRING" value=""/>
+    <var key="password" type="STRING" value=""/>
+
+    <block keyType="ROOT" key="root" visibility="visible" version="1">
+        <slot name="content">
+            <block keyType="COLUMN" key="main" visibility="visible" version="1">
+                <slot name="content">
+                    <block keyType="INPUT" key="username" visibility="visible" version="1">
+                        <data key="text" value="username"/>
+                    </block>
+                    <block keyType="INPUT" key="password" visibility="visible" version="1">
+                        <prop key="fontSize" mobile="14" tablet="14" desktop="14"/>
+                        <data key="text" value="password"/>
+                        <action event="onTextChange">
+                            <trigger keyType="VALIDATE" name="validate password" version="1">
+                                <then value="FAILURE">
+                                    <trigger keyType="SHOW_ERROR" name="show error 1" version="1"/>
+                                    <trigger keyType="CHANGE_COLOR" name="change color to red" version="1">
+                                        <prop key="color" value="RED"/>
+                                    </trigger>
+                                </then>
+                                <then value="SUCCESS">
+                                    <trigger keyType="SHOW_OK" name="show ok" version="1">
+                                        <prop key="color" value="GREEN"/>
+                                    </trigger>
+                                </then>
+                            </trigger>
+                        </action>
+                    </block>
+                </slot>
+            </block>
+        </slot>
+    </block>
+</frame>
+```
+
 ---
 
 ## Syntax Overview
 
-- **Frame Declaration**  
+- **Frame Declaration**
   ```
   frame(name = "screenName", route = "/route") { ... }
   ```
 
-- **Variable Declaration**  
+- **Variable Declaration**
   ```
   var variableName: TYPE = value
   ```
 
-- **Block Declaration**  
+- **Block Declaration**
   ```
   block(keyType = "TYPE", key = "name", visibility = someVariable, version = 1)
   ```
 
-- **Slot Injection**  
+- **Slot Injection**
   ```
   .slot("slotName") { ... }
   ```
 
-- **Data Assignment**  
+- **Data Assignment**
   ```
   .data(key = value)
   // or
@@ -89,8 +145,8 @@ frame(
       key2 = value2
   )
   ```
-  
-- **Property Assignment (single or multi-device)**  
+
+- **Property Assignment (single or multi-device)**
   ```
   .prop(
       property1 = value1,
@@ -108,13 +164,13 @@ frame(
   )
   ```
 
-- **Event Action**  
+- **Event Action**
   ```
   .action(event = "eventName") { ... }
   ```
   (Multiple triggers can be handled inside.)
 
-- **Trigger**  
+- **Trigger**
   ```
   trigger(keyType = "TYPE", name = "description")
   .then("NEXT") { ... }
@@ -126,23 +182,54 @@ frame(
 
 Use the root `nbx` package. All implementation details are in `internal/` (not for import).
 
-### Convert JSON to NBX DSL
+### Parsing
 
 ```go
 import "github.com/nativeblocks/nbx"
 
-frameDSL := nbx.ToDSL(frameJson)
+// Auto-detect format (DSL or XML) and parse
+frame, errs := nbx.Parse(content)
+
+// Parse specific formats
+frame, errs := nbx.ParseDSL(dslString)
+frame, errs := nbx.ParseXML(xmlString)
+
+// Detect format
+format := nbx.DetectFormat(content) // returns "dsl", "xml", or "unknown"
 ```
 
-### Convert NBX DSL to JSON
+### Converting to JSON
 
 ```go
-import "github.com/nativeblocks/nbx"
-
 jsonFrame, err := nbx.ToJSON(frameDSL, schemaString, "")
 if err != nil {
-    // handle error
+// handle error
 }
+```
+
+### Converting from JSON
+
+```go
+// Convert to DSL
+dslString := nbx.ToDSL(frameJson)
+
+// Convert to XML
+xmlString := nbx.ToXML(frameDSL)
+```
+
+### Formatting
+
+```go
+// Auto-detect and format
+formatted, errs := nbx.Format(content)
+
+// Format specific formats
+formatted, errs := nbx.FormatDSL(dslString)
+formatted, errs := nbx.FormatXML(xmlString)
+
+// Format from model
+dslString := nbx.FormatFrameDSL(frameDSL)
+xmlString := nbx.FormatFrameXML(frameDSL)
 ```
 
 ---
