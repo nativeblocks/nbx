@@ -1,0 +1,46 @@
+<frame name="HomePage" route="/home">
+    <var key="title_text" type="STRING" value="Hello World"/>
+    <var key="counter" type="INT" value="0"/>
+    <var key="button_text" type="STRING" value="Increment"/>
+
+    <block keyType="ROOT" key="root">
+        <slot name="content">
+            <block keyType="nativeblocks/column" key="main-column" version="1">
+                <prop key="width" value="match"/>
+                <prop key="height" value="match"/>
+                <prop key="horizontalAlignment" value="centerHorizontally"/>
+                <prop key="padding" mobile="16" tablet="24" desktop="32" />
+
+                <slot name="content">
+                    <block keyType="nativeblocks/text" key="title" version="1">
+                        <prop key="fontSize" mobile="20" tablet="24" desktop="28" />
+                        <prop key="textAlign" value="center"/>
+                        <data key="text" value="title_text"/>
+                    </block>
+
+                    <block keyType="nativeblocks/text" key="counter-display" version="1">
+                        <prop key="fontSize" mobile="28" tablet="32" desktop="40" />
+                        <data key="text" value="counter"/>
+                    </block>
+
+                    <block keyType="nativeblocks/button" key="increment-btn" version="1">
+                        <prop key="backgroundColor" value="#2563EB"/>
+                        <data key="text" value="button_text"/>
+
+                        <action event="onClick">
+                            <trigger keyType="nativeblocks/change_variable" name="increment" version="1">
+                                <prop key="variableValue"
+                                      value="#SCRIPT
+                                const count = {var:counter}
+                                const result = count + 1
+                                result
+                                #ENDSCRIPT" />
+                                <data key="variableKey" value="counter"/>
+                            </trigger>
+                        </action>
+                    </block>
+                </slot>
+            </block>
+        </slot>
+    </block>
+</frame>

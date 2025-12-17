@@ -2,6 +2,7 @@ package nbx
 
 import (
 	"github.com/nativeblocks/nbx/internal/compiler"
+	"github.com/nativeblocks/nbx/internal/detector"
 	"github.com/nativeblocks/nbx/internal/errors"
 	"github.com/nativeblocks/nbx/internal/formatter"
 	"github.com/nativeblocks/nbx/internal/lexer"
@@ -39,7 +40,28 @@ type ActionTriggerJson = model.ActionTriggerJson
 type TriggerPropertyJson = model.TriggerPropertyJson
 type TriggerDataJson = model.TriggerDataJson
 
-func Parse(stringifyDsl string) (FrameDSLModel, Errors) {
+// Parse parses NBX content with automatic format detection (DSL or XML).
+// It detects the format and delegates to ParseDSL or ParseXML accordingly.
+func Parse(content string) (FrameDSLModel, Errors) {
+	format := detector.DetectFormat(content)
+
+	switch format {
+	case detector.FormatXML:
+		return ParseXML(content)
+	case detector.FormatDSL:
+		return ParseDSL(content)
+	default:
+		return FrameDSLModel{}, Errors{{
+			Severity: errors.SeverityError,
+			Message:  "Unable to detect format. Content must start with 'frame(' for DSL or '<frame' for XML",
+			Line:     0,
+			Column:   0,
+		}}
+	}
+}
+
+// ParseDSL parses NBX DSL format content into a FrameDSLModel.
+func ParseDSL(stringifyDsl string) (FrameDSLModel, Errors) {
 	l := lexer.NewLexer(stringifyDsl)
 	p := parser.NewParser(l, stringifyDsl)
 	frame := p.ParseNBX()
@@ -63,6 +85,31 @@ func Parse(stringifyDsl string) (FrameDSLModel, Errors) {
 	}
 
 	return *frame, all
+}
+
+// ParseXML parses NBX XML format content into a FrameDSLModel.
+func ParseXML(xmlString string) (FrameDSLModel, Errors) {
+	frame, errs := parser.ParseXML(xmlString)
+	if len(errs) > 0 {
+		return frame, _errorValueOf(errs)
+	}
+
+	// Run validation on the parsed frame
+	collector, _ := validator.ValidateWithSource(&frame, xmlString)
+
+	var all Errors
+	if collector != nil {
+		all = append(all, _errorValueOf(collector.Errors())...)
+		all = append(all, _errorValueOf(collector.Warnings())...)
+	}
+
+	return frame, all
+}
+
+// DetectFormat detects whether the input is DSL, XML, or unknown format.
+// It returns one of: "dsl", "xml", or "unknown"
+func DetectFormat(content string) string {
+	return detector.DetectFormat(content)
 }
 
 // ToDSL converts a FrameJson to a FrameDSLModel.
@@ -89,17 +136,55 @@ func ToString(frameDSL FrameDSLModel) string {
 	return compiler.ToString(frameDSL)
 }
 
-// Format takes a DSL string and returns a properly formatted version.
+// ToXML converts a FrameDSLModel to XML string format.
+func ToXML(frameDSL FrameDSLModel) string {
+	return compiler.ToXML(frameDSL)
+}
+
+// Format takes NBX content (DSL or XML) and returns a properly formatted version.
+// It auto-detects the format and delegates to FormatDSL or FormatXML accordingly.
+func Format(content string) (string, Errors) {
+	format := detector.DetectFormat(content)
+
+	switch format {
+	case detector.FormatXML:
+		return FormatXML(content)
+	case detector.FormatDSL:
+		return FormatDSL(content)
+	default:
+		return "", Errors{{
+			Severity: errors.SeverityError,
+			Message:  "Unable to detect format for formatting",
+			Line:     0,
+			Column:   0,
+		}}
+	}
+}
+
+// FormatDSL takes a DSL string and returns a properly formatted version.
 // It parses the DSL to ensure validity and then formats it with consistent indentation and spacing.
-func Format(dslString string) (string, Errors) {
+func FormatDSL(dslString string) (string, Errors) {
 	result, errs := formatter.Format(dslString)
 	return result, errs
+}
+
+// FormatXML takes an XML string and returns a properly formatted version.
+// It parses the XML to ensure validity and then formats it with consistent indentation.
+func FormatXML(xmlString string) (string, Errors) {
+	result, errs := formatter.FormatXML(xmlString)
+	return result, _errorValueOf(errs)
 }
 
 // FormatFrameDSL takes a FrameDSLModel and returns a properly formatted DSL string.
 // This function does not perform any validation and works directly with the model.
 func FormatFrameDSL(frameDSL FrameDSLModel) string {
 	return formatter.FormatFrameDSL(frameDSL)
+}
+
+// FormatFrameXML takes a FrameDSLModel and returns a properly formatted XML string.
+// This function does not perform any validation and works directly with the model.
+func FormatFrameXML(frameDSL FrameDSLModel) string {
+	return formatter.FormatFrameXML(frameDSL)
 }
 
 // FormatAll formats all errors and warnings into a human-readable string.

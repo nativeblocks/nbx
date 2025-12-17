@@ -1,0 +1,50 @@
+<frame name="LoginScreen" route="/login">
+    <var key="username" type="STRING" value=""/>
+    <var key="password" type="STRING" value=""/>
+
+    <block keyType="ROOT" key="container">
+        <prop key="layout" mobile="vertical" tablet="vertical" desktop="horizontal" />
+        <prop key="padding" value="16"/>
+
+        <slot name="content">
+            <block keyType="INPUT" key="usernameField">
+                <prop key="placeholder" value="Username"/>
+                <prop key="fontSize" mobile="14" tablet="16" desktop="18" />
+                <data key="value" value="username"/>
+            </block>
+
+            <block keyType="INPUT" key="passwordField">
+                <prop key="placeholder" mobile="Password" tablet="Password" desktop="Password"/>
+                <prop key="inputType" value="password"/>
+                <prop key="fontSize" mobile="14" tablet="16" desktop="18" />
+                <data key="value" value="password"/>
+            </block>
+
+            <block keyType="BUTTON" key="loginBtn">
+                <prop key="title" value="Login"/>
+                <prop key="variant" value="primary"/>
+                <prop key="width" mobile="match" tablet="320" desktop="400" />
+
+                <action event="onPress">
+                    <trigger keyType="VALIDATE" name="checkCredentials">
+                        <data key="username" value="username"/>
+                        <data key="password" value="password"/>
+
+                        <then value="SUCCESS">
+                            <trigger keyType="NAVIGATE" name="goToDashboard">
+                                <prop key="route" value="/dashboard"/>
+                            </trigger>
+                        </then>
+
+                        <then value="FAILURE">
+                            <trigger keyType="SHOW_MESSAGE" name="showError">
+                                <prop key="message" value="Invalid credentials"/>
+                                <prop key="type" value="error"/>
+                            </trigger>
+                        </then>
+                    </trigger>
+                </action>
+            </block>
+        </slot>
+    </block>
+</frame>
