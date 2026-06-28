@@ -25,8 +25,11 @@ func FormatFrameDSL(frame model.FrameDSLModel) string {
 
 	builder.WriteString("frame(\n")
 	builder.WriteString(fmt.Sprintf("    name = \"%s\",\n", frame.Name))
-	builder.WriteString(fmt.Sprintf("    route = \"%s\"\n", frame.Route))
-	builder.WriteString(") {\n")
+	builder.WriteString(fmt.Sprintf("    route = \"%s\"", frame.Route))
+	if frame.Type != "" && frame.Type != "FRAME" {
+		builder.WriteString(fmt.Sprintf(",\n    type = \"%s\"", frame.Type))
+	}
+	builder.WriteString("\n) {\n")
 
 	for _, variable := range frame.Variables {
 		builder.WriteString(fmt.Sprintf("    var %s: %s = %s\n",

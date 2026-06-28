@@ -536,10 +536,13 @@ func (p *Parser) _parseFrame() *model.FrameDSLModel {
 	frameAttrs := p._parseKeyValuePairs()
 	frame.Name = frameAttrs["name"]
 	frame.Route = frameAttrs["route"]
+	if frameType, ok := frameAttrs["type"]; ok && frameType != "" {
+		frame.Type = frameType
+	}
 
 	for key := range frameAttrs {
-		if key != "name" && key != "route" {
-			validAttrs := []string{"name", "route"}
+		if key != "name" && key != "route" && key != "type" {
+			validAttrs := []string{"name", "route", "type"}
 			p.errorCollector.AddError(errors.UnknownAttributeError(
 				key, "frame", frame.Line, frame.Column, validAttrs,
 			))
