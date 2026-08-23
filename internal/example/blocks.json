@@ -24,11 +24,6 @@
         "type": "STRING"
       },
       {
-        "key": "weight",
-        "value": "0F",
-        "type": "FLOAT"
-      },
-      {
         "key": "paddingStart",
         "value": "0.0",
         "type": "STRING"
@@ -235,11 +230,6 @@
         "type": "DOUBLE"
       },
       {
-        "key": "weight",
-        "value": "0.0",
-        "type": "DOUBLE"
-      },
-      {
         "key": "width",
         "value": "auto",
         "type": "STRING"
@@ -278,11 +268,6 @@
         "key": "height",
         "value": "wrap",
         "type": "STRING"
-      },
-      {
-        "key": "weight",
-        "value": "0F",
-        "type": "FLOAT"
       },
       {
         "key": "paddingStart",
@@ -402,11 +387,6 @@
         "type": "STRING"
       },
       {
-        "key": "weight",
-        "value": "0F",
-        "type": "FLOAT"
-      },
-      {
         "key": "width",
         "value": "wrap",
         "type": "STRING"
@@ -438,11 +418,6 @@
         "key": "height",
         "value": "wrap",
         "type": "STRING"
-      },
-      {
-        "key": "weight",
-        "value": "0F",
-        "type": "FLOAT"
       },
       {
         "key": "paddingStart",
@@ -602,11 +577,6 @@
         "type": "STRING"
       },
       {
-        "key": "weight",
-        "value": "0F",
-        "type": "FLOAT"
-      },
-      {
         "key": "width",
         "value": "wrap",
         "type": "STRING"
@@ -642,11 +612,6 @@
         "key": "height",
         "value": "wrap",
         "type": "STRING"
-      },
-      {
-        "key": "weight",
-        "value": "0F",
-        "type": "FLOAT"
       },
       {
         "key": "paddingStart",
@@ -732,11 +697,6 @@
         "type": "STRING"
       },
       {
-        "key": "weight",
-        "value": "0F",
-        "type": "FLOAT"
-      },
-      {
         "key": "width",
         "value": "wrap",
         "type": "STRING"
@@ -799,11 +759,6 @@
         "key": "textColor",
         "value": "#ff000000",
         "type": "STRING"
-      },
-      {
-        "key": "weight",
-        "value": "0F",
-        "type": "FLOAT"
       },
       {
         "key": "width",
@@ -873,11 +828,6 @@
         "key": "height",
         "value": "wrap",
         "type": "STRING"
-      },
-      {
-        "key": "weight",
-        "value": "0F",
-        "type": "FLOAT"
       },
       {
         "key": "contentColor",
