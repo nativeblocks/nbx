@@ -8,6 +8,7 @@ import (
 type BlockIntegration struct {
 	KeyType    string               `json:"keyType"`
 	Version    int                  `json:"version"`
+	Scope      string               `json:"scope"`
 	Properties []PropertyDefinition `json:"properties"`
 	Data       []DataDefinition     `json:"data"`
 	Events     []EventDefinition    `json:"events"`
@@ -17,6 +18,7 @@ type BlockIntegration struct {
 type ActionIntegration struct {
 	KeyType    string               `json:"keyType"`
 	Version    int                  `json:"version"`
+	Scope      string               `json:"scope"`
 	Properties []PropertyDefinition `json:"properties"`
 	Data       []DataDefinition     `json:"data"`
 	Events     []EventDefinition    `json:"events"`
@@ -35,10 +37,12 @@ type DataDefinition struct {
 
 type EventDefinition struct {
 	Event string `json:"event"`
+	Scope string `json:"scope"`
 }
 
 type SlotDefinition struct {
-	Slot string `json:"slot"`
+	Slot  string `json:"slot"`
+	Scope string `json:"scope"`
 }
 
 type IntegrationRegistry struct {

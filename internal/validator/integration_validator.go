@@ -21,7 +21,7 @@ func NewIntegrationValidator(registry *IntegrationRegistry) *IntegrationValidato
 func (iv *IntegrationValidator) ValidateFrame(frame *model.FrameDSLModel) error {
 	var errors []string
 
-	blockErrors := iv._validateBlocks(frame.Blocks)
+	blockErrors := iv._validateBlocks(frame.Blocks, "")
 	errors = append(errors, blockErrors...)
 
 	if len(errors) > 0 {
@@ -31,21 +31,24 @@ func (iv *IntegrationValidator) ValidateFrame(frame *model.FrameDSLModel) error 
 	return nil
 }
 
-func (iv *IntegrationValidator) _validateBlocks(blocks []model.BlockDSLModel) []string {
+func (iv *IntegrationValidator) _validateBlocks(blocks []model.BlockDSLModel, scope string) []string {
 	var errors []string
 
 	for _, block := range blocks {
 		if block.KeyType == "ROOT" {
-			errors = append(errors, iv._validateBlocks(block.Blocks)...)
+			errors = append(errors, iv._validateBlocks(block.Blocks, scope)...)
 			continue
 		}
 
 		integration, exists := iv.registry.GetBlock(block.KeyType)
 		if !exists {
 			errors = append(errors, fmt.Sprintf("block '%s' uses unknown integration '%s'", block.Key, block.KeyType))
-			errors = append(errors, iv._validateBlocks(block.Blocks)...)
+			errors = append(errors, iv._validateBlocks(block.Blocks, "")...)
 			continue
 		}
+
+		scopeErrors := iv._validateBlockScope(block, integration, scope)
+		errors = append(errors, scopeErrors...)
 
 		propErrors := iv._validateBlockProperties(block, integration)
 		errors = append(errors, propErrors...)
@@ -59,10 +62,43 @@ func (iv *IntegrationValidator) _validateBlocks(blocks []model.BlockDSLModel) []
 		eventErrors := iv._validateBlockEvents(block, integration)
 		errors = append(errors, eventErrors...)
 
-		errors = append(errors, iv._validateBlocks(block.Blocks)...)
+		errors = append(errors, iv._validateChildBlocks(block, integration)...)
 	}
 
 	return errors
+}
+
+func (iv *IntegrationValidator) _validateChildBlocks(block model.BlockDSLModel, integration BlockIntegration) []string {
+	slotScopes := make(map[string]string, len(integration.Slots))
+	for _, slot := range integration.Slots {
+		slotScopes[slot.Slot] = slot.Scope
+	}
+
+	var errors []string
+
+	for _, child := range block.Blocks {
+		errors = append(errors, iv._validateBlocks([]model.BlockDSLModel{child}, slotScopes[child.Slot])...)
+	}
+
+	return errors
+}
+
+func (iv *IntegrationValidator) _validateBlockScope(block model.BlockDSLModel, integration BlockIntegration, scope string) []string {
+	if integration.Scope == "" || integration.Scope == scope {
+		return nil
+	}
+
+	if scope == "" {
+		return []string{fmt.Sprintf(
+			"block '%s' requires scope '%s' for integration '%s', but it is not placed in a slot that provides a scope",
+			block.Key, integration.Scope, block.KeyType,
+		)}
+	}
+
+	return []string{fmt.Sprintf(
+		"block '%s' requires scope '%s' for integration '%s', but it is placed in a slot that provides scope '%s'",
+		block.Key, integration.Scope, block.KeyType, scope,
+	)}
 }
 
 func (iv *IntegrationValidator) _validateBlockProperties(block model.BlockDSLModel, integration BlockIntegration) []string {
@@ -157,14 +193,14 @@ func (iv *IntegrationValidator) _validateBlockEvents(block model.BlockDSLModel, 
 			))
 		}
 
-		triggerErrors := iv._validateTriggers(action.Triggers, block.Key)
+		triggerErrors := iv._validateTriggers(action.Triggers, block.Key, validEvents[action.Event].Scope)
 		errors = append(errors, triggerErrors...)
 	}
 
 	return errors
 }
 
-func (iv *IntegrationValidator) _validateTriggers(triggers []model.ActionTriggerDSLModel, blockKey string) []string {
+func (iv *IntegrationValidator) _validateTriggers(triggers []model.ActionTriggerDSLModel, blockKey string, scope string) []string {
 	var errors []string
 
 	for _, trigger := range triggers {
@@ -174,9 +210,12 @@ func (iv *IntegrationValidator) _validateTriggers(triggers []model.ActionTrigger
 				"block '%s' uses unknown action integration '%s' in trigger '%s'",
 				blockKey, trigger.KeyType, trigger.Name,
 			))
-			errors = append(errors, iv._validateTriggers(trigger.Triggers, blockKey)...)
+			errors = append(errors, iv._validateTriggers(trigger.Triggers, blockKey, "")...)
 			continue
 		}
+
+		scopeErrors := iv._validateTriggerScope(trigger, integration, blockKey, scope)
+		errors = append(errors, scopeErrors...)
 
 		propErrors := iv._validateTriggerProperties(trigger, integration, blockKey)
 		errors = append(errors, propErrors...)
@@ -184,10 +223,55 @@ func (iv *IntegrationValidator) _validateTriggers(triggers []model.ActionTrigger
 		dataErrors := iv._validateTriggerData(trigger, integration, blockKey)
 		errors = append(errors, dataErrors...)
 
-		errors = append(errors, iv._validateTriggers(trigger.Triggers, blockKey)...)
+		errors = append(errors, iv._validateNestedTriggers(trigger, integration, blockKey)...)
 	}
 
 	return errors
+}
+
+func (iv *IntegrationValidator) _validateNestedTriggers(trigger model.ActionTriggerDSLModel, integration ActionIntegration, blockKey string) []string {
+	validEvents := make(map[string]EventDefinition)
+	for _, event := range integration.Events {
+		validEvents[event.Event] = event
+	}
+
+	var errors []string
+
+	for _, nested := range trigger.Triggers {
+		event, exists := validEvents[nested.Then]
+		if !exists && nested.Then != "" {
+			availableEvents := make([]string, 0, len(validEvents))
+			for key := range validEvents {
+				availableEvents = append(availableEvents, key)
+			}
+			errors = append(errors, fmt.Sprintf(
+				"block '%s' trigger '%s' uses invalid then '%s' for action integration '%s'. Available events: [%s]",
+				blockKey, nested.Name, nested.Then, trigger.KeyType, strings.Join(availableEvents, ", "),
+			))
+		}
+
+		errors = append(errors, iv._validateTriggers([]model.ActionTriggerDSLModel{nested}, blockKey, event.Scope)...)
+	}
+
+	return errors
+}
+
+func (iv *IntegrationValidator) _validateTriggerScope(trigger model.ActionTriggerDSLModel, integration ActionIntegration, blockKey string, scope string) []string {
+	if integration.Scope == "" || integration.Scope == scope {
+		return nil
+	}
+
+	if scope == "" {
+		return []string{fmt.Sprintf(
+			"block '%s' trigger '%s' requires scope '%s' for action integration '%s', but the event it is attached to provides no scope",
+			blockKey, trigger.Name, integration.Scope, trigger.KeyType,
+		)}
+	}
+
+	return []string{fmt.Sprintf(
+		"block '%s' trigger '%s' requires scope '%s' for action integration '%s', but the event it is attached to provides scope '%s'",
+		blockKey, trigger.Name, integration.Scope, trigger.KeyType, scope,
+	)}
 }
 
 func (iv *IntegrationValidator) _validateTriggerProperties(trigger model.ActionTriggerDSLModel, integration ActionIntegration, blockKey string) []string {
